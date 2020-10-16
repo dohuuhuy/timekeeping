@@ -37,11 +37,12 @@ exports.findAll = (req, res) => {
 
 // Find a single note with a noteId
 exports.findOne = (req, res) => {
-  Location.findById(req.params.locationId)
+  var id = req.params.partnerId;
+  Location.find({ partnerId: id })
     .then((loca) => {
       if (!loca) {
         return res.status(404).send({
-          message: "Location not found with id " + req.params.locationId,
+          message: "Location not found with id " + req.params.partnerId,
         });
       }
       res.send(loca);
@@ -49,11 +50,11 @@ exports.findOne = (req, res) => {
     .catch((err) => {
       if (err.kind === "ObjectId") {
         return res.status(404).send({
-          message: "Location not found with id " + req.params.locationId,
+          message: "Location not found with id " + req.params.partnerId,
         });
       }
       return res.status(500).send({
-        message: "Error retrieving loca with id " + req.params.locationId,
+        message: "Error retrieving loca with id " + req.params.partnerId,
       });
     });
 };

@@ -31,11 +31,11 @@ module.exports = (app) => {
 
   router.get("/locations", locations.findAll);
 
-  router.get("/locations/:locationId", locations.findOne);
+  router.get("/locations/:partnerId", locations.findOne);
 
-  router.put("/locations/:locationId", locations.update);
+  router.put("/locations/:partnerId", locations.update);
 
-  router.delete("/locations/:locationId", locations.delete);
+  router.delete("/locations/:partnerId", locations.delete);
 
   app.use("/worktime", router);
 };

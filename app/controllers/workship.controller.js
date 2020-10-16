@@ -38,33 +38,48 @@ exports.findAll = (req, res) => {
     });
 };
 
+currentDay = () => {
+  var date = new Date();
+  var current_day = date.getDay();
+  const days = new Map();
+  days
+    .set(0, "CN")
+    .set(1, "2")
+    .set(2, "3")
+    .set(3, "4")
+    .set(4, "5")
+    .set(5, "6")
+    .set(6, "7");
+  return days.get(current_day);
+};
+
 // Find a single note with a noteId
 exports.findOne = (req, res) => {
-
-    var id = req.params.workshipId;
-    db.getDB()
-      .collection("schedules")
-      .find({ _id: db.getPrimaryKey(id) })
-      .toArray()
-      .then((note) => {
-        if (!note) {
-          return res.status(404).send({
-            message: "Note not found with id " + req.params.workshipId,
-          });
-        }
-        res.send(note);
-      })
-      .catch((err) => {
-        if (err.kind === "ObjectId") {
-          return res.status(404).send({
-            message: "Note not found with id " + req.params.workshipId,
-          });
-        }
-        return res.status(500).send({
-          message: "Error retrieving note with id " + req.params.workshipId,
+  var id = req.params.workshipId;
+  var cdate = currentDay();
+  db.getDB()
+    .collection("schedules")
+    .find({ partnerId: id, days: new RegExp(cdate, 'i') })
+    .toArray()
+    .then((note) => {
+      if (!note) {
+        return res.status(404).send({
+          message: "Note not found with id " + req.params.workshipId,
         });
+      }
+      res.send(note);
+    })
+    .catch((err) => {
+      if (err.kind === "ObjectId") {
+        return res.status(404).send({
+          message: "Note not found with id " + req.params.workshipId,
+        });
+      }
+      return res.status(500).send({
+        message: "Error retrieving note with id " + req.params.workshipId,
       });
-};
+    });
+};;
 
 // Update a note identified by the noteId in the request
 exports.update = (req, res) => {
