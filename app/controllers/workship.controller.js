@@ -40,24 +40,30 @@ exports.findAll = (req, res) => {
 
 // Find a single note with a noteId
 exports.findOne = (req, res) => {
-    Workship.findById(req.params.noteId)
-    .then(note => {
-        if(!note) {
-            return res.status(404).send({
-                message: "Note not found with id " + req.params.noteId
-            });            
+
+    var id = req.params.workshipId;
+    db.getDB()
+      .collection("schedules")
+      .find({ _id: db.getPrimaryKey(id) })
+      .toArray()
+      .then((note) => {
+        if (!note) {
+          return res.status(404).send({
+            message: "Note not found with id " + req.params.workshipId,
+          });
         }
         res.send(note);
-    }).catch(err => {
-        if(err.kind === 'ObjectId') {
-            return res.status(404).send({
-                message: "Note not found with id " + req.params.noteId
-            });                
+      })
+      .catch((err) => {
+        if (err.kind === "ObjectId") {
+          return res.status(404).send({
+            message: "Note not found with id " + req.params.workshipId,
+          });
         }
         return res.status(500).send({
-            message: "Error retrieving note with id " + req.params.noteId
+          message: "Error retrieving note with id " + req.params.workshipId,
         });
-    });
+      });
 };
 
 // Update a note identified by the noteId in the request
