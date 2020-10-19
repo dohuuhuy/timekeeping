@@ -49,7 +49,6 @@ exports.findOne = (req, res) => {
   var cdate = currentDay();
   Workship.find({ partnerId: id, days: RegExp(cdate, "i") })
     .sort({ shiftId: 1 })
-    .toArray()
     .then((note) => {
       if (!note) {
         return res.status(404).send({
