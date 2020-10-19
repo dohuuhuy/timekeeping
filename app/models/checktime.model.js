@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
 
 const CheckSchema = mongoose.Schema({
+
+    partnerId: String,
+    userId: String,
     locationData: String,
     locationDetail: String,
     time: {
         type: Date,
         default: Date.now()
      },
-    action: Boolean  
+    action: Number ,
+    conditions: String 
 });
 
 module.exports = mongoose.model('checktimes', CheckSchema,'checktimes');
