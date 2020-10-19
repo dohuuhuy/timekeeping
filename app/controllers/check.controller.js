@@ -40,7 +40,7 @@ exports.findAll = (req, res) => {
 };
 
 exports.findOne = (req, res) => {
-    Checks.find({userId: req.params.checkId})
+    Checks.find({ userId: req.params.checkId })
       .sort({ time: -1 })
       .limit(1)
       .then((checks) => {

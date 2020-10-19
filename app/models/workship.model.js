@@ -17,4 +17,4 @@ const NoteSchema = mongoose.Schema({
 
 });
 
-module.exports = mongoose.model('schedules', NoteSchema,'schedules' );
+module.exports = mongoose.model("work_schedules", NoteSchema, "work_schedules");

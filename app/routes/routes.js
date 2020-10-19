@@ -13,7 +13,7 @@ module.exports = (app) => {
 
   router.delete("/checks/:checkId", check.delete);
 
-  const workships = require("../controllers/workship.controller.js");
+  const workships = require("../controllers/workSchedules.controller");
 
   router.post("/workships", workships.create);
 
