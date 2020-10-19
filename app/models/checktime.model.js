@@ -11,7 +11,8 @@ const CheckSchema = mongoose.Schema({
         default: Date.now()
      },
     action: Number ,
-    conditions: String 
+    conditions: String,
+    token: String
 });
 
 module.exports = mongoose.model('checktimes', CheckSchema,'checktimes');

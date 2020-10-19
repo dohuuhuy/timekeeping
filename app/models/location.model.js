@@ -10,6 +10,9 @@ const locationSchema = mongoose.Schema({
   name: String,
   address: String,
   status: Boolean,
+
+  latitude: String,
+  longitude: String,
 });
 
 module.exports = mongoose.model("locations", locationSchema, "locations");
