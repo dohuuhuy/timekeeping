@@ -3,7 +3,6 @@
 const db = require("./../models/db.js");
 
 
-// Create and Save a new Note
 exports.create = (req, res) => {
  // Validate request
 //  if(!req.body.content) {
@@ -12,10 +11,8 @@ exports.create = (req, res) => {
 //     });
 // }
 
-// Create a Note
 const note = new Workship(req.body);
 
-// Save Note in the database
 note.save()
 .then(data => {
     res.send(data);
@@ -26,7 +23,6 @@ note.save()
 });
 };
 
-// Retrieve and return all notes from the database.
 exports.findAll = (req, res) => {
     db.getDB().collection("schedules").find({}).toArray()
     .then(schedules => {
@@ -53,13 +49,13 @@ currentDay = () => {
   return days.get(current_day);
 };
 
-// Find a single note with a noteId
 exports.findOne = (req, res) => {
   var id = req.params.workshipId;
   var cdate = currentDay();
   db.getDB()
     .collection("schedules")
-    .find({ partnerId: id, days: { $not: RegExp(cdate, "i") } })
+    .find({ partnerId: id, days:  RegExp(cdate, "i") })
+    .sort({shiftId: 1})    
     .toArray()
     .then((note) => {
       if (!note) {
@@ -81,16 +77,13 @@ exports.findOne = (req, res) => {
     });
 };;
 
-// Update a note identified by the noteId in the request
 exports.update = (req, res) => {
- // Validate Request
  if(!req.body.content) {
     return res.status(400).send({
         message: "Note content can not be empty"
     });
 }
 
-// Find note and update it with the request body
 Workship.findByIdAndUpdate(req.params.noteId, {
     title: req.body.title || "Untitled Note",
     content: req.body.content
@@ -114,7 +107,6 @@ Workship.findByIdAndUpdate(req.params.noteId, {
 });
 };
 
-// Delete a note with the specified noteId in the request
 exports.delete = (req, res) => {
     Workship.findByIdAndRemove(req.params.noteId)
     .then(note => {
