@@ -59,7 +59,7 @@ exports.findOne = (req, res) => {
   var cdate = currentDay();
   db.getDB()
     .collection("schedules")
-    .find({ partnerId: id, days: new RegExp(cdate, 'i') })
+    .find({ partnerId: id, days: { $not: RegExp(cdate, "i") } })
     .toArray()
     .then((note) => {
       if (!note) {

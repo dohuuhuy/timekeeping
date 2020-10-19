@@ -7,7 +7,7 @@ module.exports = (app) => {
 
   router.get("/checks", check.findAll);
 
-  router.get("/checks/:checkId", check.findOne);
+  router.get("/lastCheck/:checkId", check.findOne);
 
   router.put("/checks/:checkId", check.update);
 
