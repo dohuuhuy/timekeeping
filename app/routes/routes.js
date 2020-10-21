@@ -38,4 +38,5 @@ module.exports = (app) => {
   router.delete("/locations/:partnerId", locations.delete);
 
   app.use("/worktime", router);
+  app.use("/demo1", check.demo1);
 };

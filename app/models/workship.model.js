@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 
 const NoteSchema = mongoose.Schema({
-    createTime: {
-        type: Date,
-        default: Date.now
-    },
+   
     partnerId: String,
+    locationId: String,
+    workshipId: String,
     code: String,
     shiftId: Number,
     shiftName: String,
@@ -13,7 +12,13 @@ const NoteSchema = mongoose.Schema({
     toTime: String,
     customSlot: String,
     days: String,
-    type: String
+    type: String,
+    status: Number,
+    createTime: {
+        type: Date,
+        default: Date.now
+    },
+    
 
 });
 

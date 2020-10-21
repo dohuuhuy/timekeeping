@@ -52,7 +52,7 @@ exports.findOne = (req, res) => {
     .then((note) => {
       if (!note) {
         return res.status(404).send({
-          message: "Note not found with id " + req.params.workshipId,
+          message: "workship not found with id " + req.params.workshipId,
         });
       }
       res.send(note);

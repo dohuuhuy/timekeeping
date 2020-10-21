@@ -1,22 +1,20 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const db = require("./app/models/db");
-
 const app = express();
-
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(bodyParser.json());
+const check = require("./app/controllers/check.controller");
+
+//check.SetUpChecksInDay();
+
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome " });
 });
-
 const dbConfig = require("./config/database.config.js");
 const mongoose = require("mongoose");
-
 mongoose.Promise = global.Promise;
-
 mongoose
   .connect(dbConfig.url, {
     useNewUrlParser: true,
@@ -24,7 +22,7 @@ mongoose
     auto_reconnect: true,
   })
   .then(() => {
-    console.log("Successfully connected to the database");
+    //   console.log("Successfully connected to the database \n");
   })
   .catch((err) => {
     console.log("Could not connect to the database. Exiting now...", err);
@@ -39,7 +37,12 @@ db.connect((err) => {
     require("./app/routes/routes.js")(app);
     const PORT = process.env.PORT || 80;
     app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}.`);
+      console.log(
+        `Server is running on port ${PORT}. \n\n -----------------Console.log()--------------------------`
+      );
     });
   }
 });
+
+
+
