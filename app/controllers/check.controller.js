@@ -26,6 +26,19 @@ Check_INPUT = async (data) => {
     if (checklastchecks == 0) {
       console.log("--> check action");
       return 0;
+    }
+    if (checklastchecks == 2) {
+     
+      if (action == 0) {
+        console.log("r");
+        return 0;
+      }
+      else{
+        console.log("--> Bạn phải checkIn vao ngày mới");
+        return 2;
+      }
+
+    
     } else {
       console.log("|--> Bạn phải", !action ? "checkOut" : "checkIn");
       return 1;
@@ -48,14 +61,20 @@ CheckLastchecksID = async (userId, action) => {
     console.log("curDate :>> ", curDate);
     console.log("lastDate :>> ", x);
 
+    //kiểm tra 2 hành động trong ngày co bị trùng hay không
+    if (lastDate == curDate) {
       var actionLast = dta[0].action;
       if (action != actionLast) {
+        //khác hành động
         return 0; //  cho check
+      } else {
+        return 1; // k  cho check
       }
-    
+    } else {
+      console.log("run");;;
+      return 2;
+    }
   }
-
-  return 1; // k  cho check
 };
 
 exports.create = async (req, res) => {
@@ -84,6 +103,9 @@ exports.create = async (req, res) => {
     }
     if (ck == -1) {
       errArr.push("Chua co user");
+    }
+    if (ck == 2) {
+      errArr.push("Phai checkIn vao ngay moi");
     }
     console.log("LỖi >>>>>>>>", errArr);
 
