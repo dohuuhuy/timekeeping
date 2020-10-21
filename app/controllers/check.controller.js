@@ -36,7 +36,7 @@ Check_INPUT = async (data) => {
 CheckLastchecksID = async (userId, action) => {
   const dta = await Checks.find({ userId: userId }).sort({ time: -1 }).limit(1); // lây thằng cuôi cùng
 
-  console.log('dta :>> ', dta);
+  console.log("dta :>> ", dta);
 
   if (dta.length >= 1) {
     var date = new Date(); // ngay hiện tại
@@ -46,15 +46,13 @@ CheckLastchecksID = async (userId, action) => {
     var lastDate = moment(time).format("l"); //  10/21/2020
     var curDate = moment(date).format("l"); //  10/21/2020
     console.log("curDate :>> ", curDate);
-    console.log("lastDate :>> ", lastDate);
+    console.log("lastDate :>> ", x);
 
-    if (lastDate == curDate) {  
-      // hành động cuối cùng trong ngày
       var actionLast = dta[0].action;
       if (action != actionLast) {
         return 0; //  cho check
       }
-    }
+    
   }
 
   return 1; // k  cho check
@@ -78,11 +76,11 @@ exports.create = async (req, res) => {
           message: err.message || "Bị gián đoạn",
         });
       });
-    res.send({ message: "Thành công" });
+   // res.send({ message: "Thành công" });
   } else {
     if (ck == 1) {
-      var  ms =   !action ? "checkOut" : "checkIn";
-      errArr.push("Bạn phải "+ ms);
+      var ms = !action ? "checkOut" : "checkIn";
+      errArr.push("Bạn phải " + ms);
     }
     if (ck == -1) {
       errArr.push("Chua co user");
