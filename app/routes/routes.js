@@ -37,6 +37,21 @@ module.exports = (app) => {
 
   router.delete("/locations/:partnerId", locations.delete);
 
+
+  const support = require("../controllers/support_record.controller");
+
+  router.post("/sp_record", support.create);
+
+  router.get("/sp_record", support.findAll);
+
+  router.get("/sp_record/:sp_recordId", support.findOne);
+
+  router.put("/sp_record/:sp_recordId", support.update);
+
+  router.delete("/sp_record/:sp_recordId", support.delete);
+
+
+
   app.use("/worktime", router);
   app.use("/demo1", check.demo1);
 };

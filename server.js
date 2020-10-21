@@ -4,7 +4,9 @@ const db = require("./app/models/db");
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-const check = require("./app/controllers/check.controller");
+
+x = require("./app/controllers/support_record.controller");
+x.findAll();
 
 //check.SetUpChecksInDay();
 

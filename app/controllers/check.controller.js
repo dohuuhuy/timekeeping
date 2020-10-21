@@ -127,13 +127,13 @@ exports.findAll = (req, res) => {
 };
 
 exports.findOne = (req, res) => {
-  Checks.find({ userId: req.params.checkId })
+  Checks.findOne({ userId: req.params.checkId })
     .sort({ time: -1 })
     .limit(1)
     .then((checks) => {
       if (!checks) {
         return res.status(404).send({
-          message: "checks not found with id " + req.params.checkId,
+        
         });
       }
       res.send(checks);
@@ -141,11 +141,11 @@ exports.findOne = (req, res) => {
     .catch((err) => {
       if (err.kind === "ObjectId") {
         return res.status(404).send({
-          message: "checks not found with id " + req.params.checkId,
+      
         });
       }
       return res.status(500).send({
-        message: "Error retrieving checks with id " + req.params.checkId,
+        
       });
     });
 };
