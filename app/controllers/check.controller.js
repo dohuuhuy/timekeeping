@@ -203,17 +203,17 @@ exports.create = async (req, res) => {
   var action = req.body.action;
 
   if (ck == "Ok-check") {
-    // check
-    //   .save()
-    //   .then((data) => {
-    //     res.send({ message: "Thành công" });
-    //   })
-    //   .catch((err) => {
-    //     res.status(500).send({
-    //       message: err.message || "Bị gián đoạn",
-    //     });
-    //   });
-    res.send({ message: "Thành công" });
+    check
+      .save()
+      .then((data) => {
+        res.send({ message: "Thành công" });
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message: err.message || "Bị gián đoạn",
+        });
+      });
+    // res.send({ message: "Thành công" });
   } else {
     if (ck == "Find-check") {
       var ms = !action ? "checkOut" : "checkIn";
