@@ -75,15 +75,15 @@ CheckCondition = async (locationId, data, ip) => {
 
       switch (value.type) {
         case "IP":
-          console.log("- IP")
-          ip = "27.74.247.203";
+          console.log("- IP");
+          //ip = "27.74.247.203";
           if (!value.details.includes(ip)) {
-            return { success : false, type : "IP" }
+            return { success: false, type: "IP" };
           }
-          
+
           break;
         case "Wifi":
-          console.log("- wifi")
+          console.log("- wifi");
 
           wifi_Client = data.wifiDetail.details;
           wifi_Server = value.details;
@@ -93,12 +93,12 @@ CheckCondition = async (locationId, data, ip) => {
             wifi_Client.ipAddress !== wifi_Server.ipAddress &&
             wifi_Client.ssid !== wifi_Server.ssid
           ) {
-            return { success : false, type : "Wifi" }
-          } 
-          
+            return { success: false, type: "Wifi" };
+          }
+
           break;
         case "GPS":
-          console.log("- GPS")
+          console.log("- GPS");
           var lat = dta.latitude;
           var long = dta.longitude;
           var khoangCach = geolib.getDistance(
@@ -115,8 +115,8 @@ CheckCondition = async (locationId, data, ip) => {
 
           var condition = value.details;
           if (khoangCach >= condition) {
-            return { success : false, type : "GPS" }
-          } 
+            return { success: false, type: "GPS" };
+          }
           break;
         default:
           break;
