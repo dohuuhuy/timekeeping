@@ -179,45 +179,42 @@ exports.create = async (req, res) => {
   } else {
     if (ck == "Find-check") {
       var ms = !action ? "checkOut" : "checkIn";
-      errArr={ success: false, message: "Bạn phải " + ms };
+      errArr = { message: "Bạn phải " + ms };
     }
 
     if (ck == "New-check") {
-      errArr={ success: false, message: "Phai checkIn vao ngay moi" };
+      errArr = { message: "Phai checkIn vao ngay moi" };
     }
     if (ck == "IP") {
-      errArr={
-        success: false,
+      errArr = {
         message: "IP không thể xác thực",
         type: "IP",
       };
     }
     if (ck == "Wifi") {
-      errArr={
-        success: false,
+      errArr = {
         message: "wifi không thể xác thực",
         type: "wifi",
       };
     }
     if (ck == "GPS") {
-      errArr={
-        success: false,
+      errArr = {
         message: "Check ngoài phạm vi cho phép",
         type: "GPS",
       };
     }
     if (ck == "No-condition") {
-      errArr={ success: false, message: "Không có conditions" };
+      errArr = { message: "Không có conditions" };
     }
     if (ck == "No-User") {
-      errArr={ success: false, message: "Chua co user" };
+      errArr = { message: "Chua co user" };
     }
     if (ck == "No-locationID") {
-      errArr={ success: false, message: "Không tìm thấy locationId" };
+      errArr = { message: "Không tìm thấy locationId" };
     }
     console.log("LỖi >>>>>>>>", errArr);
 
-    res.send({ error: errArr });
+    res.send({ success: false, error: errArr });
   }
 };
 
