@@ -42,7 +42,7 @@ Check_INPUT = async (req) => {
 
   if (countUserId <= 0) {
     console.log("--> chưa có user");
-    return "No-User";
+    return "Ok-check"; // No-user
   } else {
     console.log("--> đã có user");
     if (checklastchecks == "Ok-check") {
@@ -63,9 +63,9 @@ Check_INPUT = async (req) => {
         console.log("không có conditions");
         return "No-condition";
       }
-if (checkCondition == "No-locationID") {
-  return "No-locationID";
-}
+      if (checkCondition == "No-locationID") {
+        return "No-locationID";
+      }
 
       if (
         checkCondition == "Wifi" ||
@@ -94,7 +94,7 @@ if (checkCondition == "No-locationID") {
 
 CheckCondition = async (locationId, data, ip) => {
   var dta = await Location.findOne({ locationId: locationId });
-
+console.log("dta :>> ", dta);
   var result = "";
   if (!dta) {
     result = "No-locationID";
@@ -106,7 +106,7 @@ CheckCondition = async (locationId, data, ip) => {
     for (let value of dta.condition) {
       console.log(value.type);
       if (value.type == "IP") {
-        //ip = "27.74.247.203";
+        // ip = "27.74.247.203";
         if (value.details.includes(ip)) {
           console.log("có ip trong danh sách");
           result = "IP";
