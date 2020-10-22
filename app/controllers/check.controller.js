@@ -209,9 +209,9 @@ exports.create = async (req, res) => {
         res.send({ succes: true, message: "Thành công" });
       })
       .catch((err) => {
-        res.status(500).send({
-          message: err.message || "Bị gián đoạn",
-        });
+        res
+          .status(500)
+          .send({ succes: false, message: err.message || "Bị gián đoạn" });
       });
     // res.send({ message: "Thành công" });
   } else {
