@@ -25,14 +25,10 @@ exports.demo1 = (req, res) => {
 Check_INPUT = async (req) => {
   var data = req.body;
 
-  ip = (req.headers["x-forwarded-for"] || "").split(",").pop().trim();
-  ip1 = req.connection.remoteAddress;
-  ip2 = req.socket.remoteAddress;
-  ip3 = req.connection.socket.remoteAddress;
-  console.log("clientIp :>> ", ip);
-  console.log("clientIp :>> ", ip1);
-  console.log("clientIp :>> ", ip2);
-  console.log("clientIp :>> ", ip3);
+  _ip = req.connection.remoteAddress;
+
+  var ip = _ip.substring(7);
+  console.log("y :>> ", ip);
 
   var dateTime = new Date();
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
@@ -70,12 +66,10 @@ Check_INPUT = async (req) => {
       if (
         checkCondition == "Wifi" ||
         checkCondition == "GPS" ||
-        checkCondition ==
-          "IP"(
-            checkCondition == "Wifi" &&
-              checkCondition == "GPS" &&
-              checkCondition == "IP"
-          )
+        checkCondition == "IP" ||
+        (checkCondition == "Wifi" &&
+          checkCondition == "GPS" &&
+          checkCondition == "IP")
       ) {
         return "Ok-check";
       }
@@ -108,7 +102,8 @@ CheckCondition = async (locationId, data, ip) => {
     for (let value of dta.condition) {
       console.log(value.type);
       if (value.type == "IP") {
-        if (ip.includes(value.details)) {
+        if (value.details.includes(ip)) {
+          console.log("có ip trong danh sách");
           result = "IP";
         } else {
           result = "No-IP";
@@ -252,7 +247,7 @@ exports.findAll = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message: err.message || "Some error occurred while retrieving checkss.",
+        message: err.message || "Some error occurred while retrieving .",
       });
     });
 };
