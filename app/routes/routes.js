@@ -37,7 +37,6 @@ module.exports = (app) => {
 
   router.delete("/locations/:partnerId", locations.delete);
 
-
   const support = require("../controllers/support_record.controller");
 
   router.post("/sp_record", support.create);
@@ -50,8 +49,6 @@ module.exports = (app) => {
 
   router.delete("/sp_record/:sp_recordId", support.delete);
 
-
-
   app.use("/worktime", router);
-  app.use("/demo1", check.demo1);
+  // app.use("/demo1", check.demo1);
 };
