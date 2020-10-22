@@ -175,12 +175,16 @@ CheckLastchecksID = async (userId, action) => {
   }
 };
 
+var requestIp = require("request-ip");
+
 exports.create = async (req, res) => {
   const check = new Checks(req.body);
   var ck = await Check_INPUT(req.body);
   var errArr = [];
 
   var action = req.body.action;
+  var clientIp = requestIp.getClientIp(req);
+  console.log("clientIp :>> ", clientIp);
 
   if (ck == "Ok-check") {
     // check
@@ -195,7 +199,7 @@ exports.create = async (req, res) => {
     //   });
     res.send({ message: "Thành công" });
   } else {
-    if (ck ==  "Find-check") {
+    if (ck == "Find-check") {
       var ms = !action ? "checkOut" : "checkIn";
       errArr.push("Bạn phải " + ms);
     }
