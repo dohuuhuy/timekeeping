@@ -63,6 +63,10 @@ Check_INPUT = async (req) => {
         console.log("không có conditions");
         return "No-condition";
       }
+if (checkCondition == "No-locationID") {
+  return "No-locationID";
+}
+
       if (
         checkCondition == "Wifi" ||
         checkCondition == "GPS" ||
@@ -91,9 +95,9 @@ Check_INPUT = async (req) => {
 CheckCondition = async (locationId, data, ip) => {
   var dta = await Location.findOne({ locationId: locationId });
 
-  console.log("object :>> ", dta.condition[1]);
   var result = "";
   if (!dta) {
+    result = "No-locationID";
   } else {
     if (!dta.condition.length) {
       console.log("khong co conditons");
@@ -102,6 +106,7 @@ CheckCondition = async (locationId, data, ip) => {
     for (let value of dta.condition) {
       console.log(value.type);
       if (value.type == "IP") {
+        //ip = "27.74.247.203";
         if (value.details.includes(ip)) {
           console.log("có ip trong danh sách");
           result = "IP";
@@ -212,11 +217,11 @@ exports.create = async (req, res) => {
   } else {
     if (ck == "Find-check") {
       var ms = !action ? "checkOut" : "checkIn";
-      errArr.push("Bạn phải " + ms);
+      errArr.push({ message: "Bạn phải " + ms });
     }
 
     if (ck == "New-check") {
-      errArr.push("Phai checkIn vao ngay moi");
+      errArr.push({ message: "Phai checkIn vao ngay moi" });
     }
     if (ck == "No-IP") {
       errArr.push({ message: "IP không thể xác thực", type: "IP" });
@@ -231,7 +236,10 @@ exports.create = async (req, res) => {
       errArr.push({ message: "Không có conditions" });
     }
     if (ck == "No-User") {
-      errArr.push("Chua co user");
+      errArr.push({ message: "Chua co user" });
+    }
+    if (ck == "No-locationID") {
+      errArr.push({ message: "Không tìm thấy locationId" });
     }
     console.log("LỖi >>>>>>>>", errArr);
 
