@@ -25,10 +25,14 @@ exports.demo1 = (req, res) => {
 Check_INPUT = async (req) => {
   var data = req.body;
 
-  _ip = req.connection.remoteAddress;
-
-  var ip = _ip.substring(7);
-  console.log("y :>> ", ip);
+  ip = (req.headers["x-forwarded-for"] || "").split(",").pop().trim();
+  ip1 = req.connection.remoteAddress;
+  ip2 = req.socket.remoteAddress;
+  ip3 = req.connection.socket.remoteAddress;
+  console.log("clientIp :>> ", ip);
+  console.log("clientIp :>> ", ip1);
+  console.log("clientIp :>> ", ip2);
+  console.log("clientIp :>> ", ip3);
 
   var dateTime = new Date();
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
@@ -67,7 +71,7 @@ Check_INPUT = async (req) => {
         checkCondition == "Wifi" ||
         checkCondition == "GPS" ||
         checkCondition ==
-          "IP" || (
+          "IP"(
             checkCondition == "Wifi" &&
               checkCondition == "GPS" &&
               checkCondition == "IP"
@@ -104,8 +108,7 @@ CheckCondition = async (locationId, data, ip) => {
     for (let value of dta.condition) {
       console.log(value.type);
       if (value.type == "IP") {
-        if (value.details.includes(ip)) {
-          console.log("có ip trong danh sách");
+        if (ip.includes(value.details)) {
           result = "IP";
         } else {
           result = "No-IP";
