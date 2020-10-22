@@ -28,7 +28,16 @@ exports.demo1 = (req, res) => {
 
 };
 
-Check_INPUT = async (data) => {
+Check_INPUT = async (req) => {
+  var data = req.body;
+
+  ip =
+    (req.headers["x-forwarded-for"] || "").split(",").pop().trim() ||
+    req.connection.remoteAddress ||
+    req.socket.remoteAddress ||
+    req.connection.socket.remoteAddress;
+  console.log("clientIp :>> ", clientIp);
+
   var dateTime = new Date();
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
 
@@ -37,7 +46,7 @@ Check_INPUT = async (data) => {
 
   var countUserId = await Checks.countDocuments({ userId: userId });
   var checklastchecks = await CheckLastchecksID(userId, action);
-  var checkCondition = await CheckCondition(data.locationId, data);
+  var checkCondition = await CheckCondition(data.locationId, data, ip);
 
   if (countUserId <= 0) {
     console.log("--> chưa có user");
@@ -46,7 +55,10 @@ Check_INPUT = async (data) => {
     console.log("--> đã có user");
     if (checklastchecks == "Ok-check") {
       console.log("--> check action");
-
+      if (checkCondition == "No-IP") {
+        console.log("không có IP");
+        return "No-IP";
+      }
       if (checkCondition == "No-Wifi") {
         console.log("không có wifi");
         return "No-Wifi";
@@ -61,8 +73,8 @@ Check_INPUT = async (data) => {
       }
       if (
         checkCondition == "Wifi" ||
-        checkCondition == "GPS" ||
-        (checkCondition == "Wifi" && checkCondition == "GPS")
+        checkCondition == "GPS" ||  checkCondition == "IP" 
+        (checkCondition == "Wifi" && checkCondition == "GPS" && checkCondition == "IP" )
       ) {
         return "Ok-check";
       }
@@ -81,11 +93,11 @@ Check_INPUT = async (data) => {
   }
 };
 
-CheckCondition = async (locationId, data) => {
+CheckCondition = async (locationId, data, ip) => {
   var dta = await Location.findOne({ locationId: locationId });
 
-   console.log("object :>> ", dta.condition[1]);
-var result = "";
+  console.log("object :>> ", dta.condition[1]);
+  var result = "";
   if (!dta) {
   } else {
     if (!dta.condition.length) {
@@ -94,6 +106,18 @@ var result = "";
     }
     for (let value of dta.condition) {
       console.log(value.type);
+      if (value.type == "IP") {
+
+        if(ip.includes(value.details))
+        {
+          result = "IP"
+        }
+        else{
+          result = "No-IP"
+        }
+
+      }
+
       if (value.type == "Wifi") {
         console.log("------------> Wifi");
 
@@ -106,14 +130,13 @@ var result = "";
           wifi_Client.ssid === wifi_Server.ssid
         ) {
           console.log("tồn tại wifi");
-         result = "Wifi"; //tồn tại wifi
+          result = "Wifi"; //tồn tại wifi
         } else {
           console.log("không co wifi");
-         result = "No-Wifi"; // không co wifi
+          result = "No-Wifi"; // không co wifi
         }
-        
       }
-     if (value.type == "GPS") {
+      if (value.type == "GPS") {
         console.log(" ----------> GPS");
         var lat = dta.latitude;
         var long = dta.longitude;
@@ -132,7 +155,7 @@ var result = "";
         var condition = value.details;
         if (khoangCach <= condition) {
           console.log("trong phạm vi \n");
-         result = "GPS"; // cho check
+          result = "GPS"; // cho check
         } else {
           console.log("ngoài phạm vi \n");
           result = "No-GPS"; // khong cho check
@@ -175,16 +198,13 @@ CheckLastchecksID = async (userId, action) => {
   }
 };
 
-var requestIp = require("request-ip");
 
 exports.create = async (req, res) => {
   const check = new Checks(req.body);
-  var ck = await Check_INPUT(req.body);
+  var ck = await Check_INPUT(req);
   var errArr = [];
 
   var action = req.body.action;
-  var clientIp = requestIp.getClientIp(req);
-  console.log("clientIp :>> ", clientIp);
 
   if (ck == "Ok-check") {
     // check
@@ -207,7 +227,9 @@ exports.create = async (req, res) => {
     if (ck == "New-check") {
       errArr.push("Phai checkIn vao ngay moi");
     }
-
+    if (ck == "No-IP") {
+      errArr.push({ message: "IP không thể xác thực", type: "IP" });
+    }
     if (ck == "No-Wifi") {
       errArr.push({ message: "wifi không thể xác thực", type: "wifi" });
     }
