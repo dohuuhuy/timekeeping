@@ -36,7 +36,7 @@ Check_INPUT = async (req) => {
     req.connection.remoteAddress ||
     req.socket.remoteAddress ||
     req.connection.socket.remoteAddress;
-  console.log("clientIp :>> ", clientIp);
+  console.log("clientIp :>> ", ip);
 
   var dateTime = new Date();
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
