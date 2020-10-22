@@ -6,7 +6,27 @@ const moment = require("moment");
 
 const geolib = require("geolib");
 
-exports.demo1 = (req, res) => {};
+demo2 = ()=>{
+
+  a =1 , b =2 ;
+  if ( a + 1 == 1 )
+  {
+    return "ok";
+  }
+  return "no-ok";
+
+}
+
+exports.demo1 = (req, res) => {
+
+  x = demo2();
+  if(x == "no-ok")
+  {
+    console.log("haha")
+    res.send({message:"hduhcehcnodw"})
+  }
+
+};
 
 Check_INPUT = async (data) => {
   var dateTime = new Date();
@@ -17,33 +37,111 @@ Check_INPUT = async (data) => {
 
   var countUserId = await Checks.countDocuments({ userId: userId });
   var checklastchecks = await CheckLastchecksID(userId, action);
+  var checkCondition = await CheckCondition(data.locationId, data);
 
   if (countUserId <= 0) {
     console.log("--> chưa có user");
-    return -1;
+    return "No-User";
   } else {
     console.log("--> đã có user");
-    if (checklastchecks == 0) {
+    if (checklastchecks == "Ok-check") {
       console.log("--> check action");
-      return 0;
-    }
-    if (checklastchecks == 2) {
-     
-      if (action == 0) {
-        console.log("r");
-        return 0;
-      }
-      else{
-        console.log("--> Bạn phải checkIn vao ngày mới");
-        return 2;
-      }
 
-    
+      if (checkCondition == "No-Wifi") {
+        console.log("không có wifi");
+        return "No-Wifi";
+      }
+      if (checkCondition == "No-GPS") {
+        console.log("không có gps");
+        return "No-GPS";
+      }
+      if (checkCondition == "No-condition") {
+        console.log("không có conditions");
+        return "No-condition";
+      }
+      if (
+        checkCondition == "Wifi" ||
+        checkCondition == "GPS" ||
+        (checkCondition == "Wifi" && checkCondition == "GPS")
+      ) {
+        return "Ok-check";
+      }
+    }
+    if (checklastchecks == "Skip-check") {
+      if (action == 0) {
+        return "Ok-check";
+      } else {
+        console.log("--> Bạn phải checkIn vao ngày mới");
+        return "New-check";
+      }
     } else {
       console.log("|--> Bạn phải", !action ? "checkOut" : "checkIn");
-      return 1;
+      return "Find-check";
     }
   }
+};
+
+CheckCondition = async (locationId, data) => {
+  var dta = await Location.findOne({ locationId: locationId });
+
+   console.log("object :>> ", dta.condition[1]);
+var result = "";
+  if (!dta) {
+  } else {
+    if (!dta.condition.length) {
+      console.log("khong co conditons");
+      result = "No-condition"; // khong co conditions
+    }
+    for (let value of dta.condition) {
+      console.log(value.type);
+      if (value.type == "Wifi") {
+        console.log("------------> Wifi");
+
+        wifi_Client = data.wifiDetail.details;
+        wifi_Server = value.details;
+
+        if (
+          wifi_Client.bssid === wifi_Server.bssid &&
+          wifi_Client.ipAddress === wifi_Server.ipAddress &&
+          wifi_Client.ssid === wifi_Server.ssid
+        ) {
+          console.log("tồn tại wifi");
+         result = "Wifi"; //tồn tại wifi
+        } else {
+          console.log("không co wifi");
+         result = "No-Wifi"; // không co wifi
+        }
+        
+      }
+     if (value.type == "GPS") {
+        console.log(" ----------> GPS");
+        var lat = dta.latitude;
+        var long = dta.longitude;
+        var khoangCach = geolib.getDistance(
+          {
+            latitude: data.latitude,
+            longitude: data.longitude,
+          },
+          {
+            latitude: lat,
+            longitude: long,
+          }
+        );
+        console.log("khoangCach :>> ", khoangCach);
+
+        var condition = value.details;
+        if (khoangCach <= condition) {
+          console.log("trong phạm vi \n");
+         result = "GPS"; // cho check
+        } else {
+          console.log("ngoài phạm vi \n");
+          result = "No-GPS"; // khong cho check
+        }
+      }
+    }
+  }
+
+  return result;
 };
 
 CheckLastchecksID = async (userId, action) => {
@@ -66,13 +164,13 @@ CheckLastchecksID = async (userId, action) => {
       var actionLast = dta[0].action;
       if (action != actionLast) {
         //khác hành động
-        return 0; //  cho check
+        return "Ok-check"; //  cho check
       } else {
-        return 1; // k  cho check
+        return "No-check"; // k  cho check
       }
     } else {
-      console.log("run");;;
-      return 2;
+      //  console.log("run");
+      return "Skip-check";
     }
   }
 };
@@ -84,28 +182,39 @@ exports.create = async (req, res) => {
 
   var action = req.body.action;
 
-  if (ck == 0) {
-    check
-      .save()
-      .then((data) => {
-        res.send({ message: "Thành công" });
-      })
-      .catch((err) => {
-        res.status(500).send({
-          message: err.message || "Bị gián đoạn",
-        });
-      });
-   // res.send({ message: "Thành công" });
+  if (ck == "Ok-check") {
+    // check
+    //   .save()
+    //   .then((data) => {
+    //     res.send({ message: "Thành công" });
+    //   })
+    //   .catch((err) => {
+    //     res.status(500).send({
+    //       message: err.message || "Bị gián đoạn",
+    //     });
+    //   });
+    res.send({ message: "Thành công" });
   } else {
-    if (ck == 1) {
+    if (ck ==  "Find-check") {
       var ms = !action ? "checkOut" : "checkIn";
       errArr.push("Bạn phải " + ms);
     }
-    if (ck == -1) {
-      errArr.push("Chua co user");
-    }
-    if (ck == 2) {
+
+    if (ck == "New-check") {
       errArr.push("Phai checkIn vao ngay moi");
+    }
+
+    if (ck == "No-Wifi") {
+      errArr.push({ message: "wifi không thể xác thực", type: "wifi" });
+    }
+    if (ck == "No-GPS") {
+      errArr.push({ message: "Check ngoài phạm vi cho phép", type: "GPS" });
+    }
+    if (ck == "No-condition") {
+      errArr.push({ message: "Không có conditions" });
+    }
+    if (ck == "No-User") {
+      errArr.push("Chua co user");
     }
     console.log("LỖi >>>>>>>>", errArr);
 
@@ -132,21 +241,15 @@ exports.findOne = (req, res) => {
     .limit(1)
     .then((checks) => {
       if (!checks) {
-        return res.status(404).send({
-        
-        });
+        return res.status(404).send({});
       }
       res.send(checks);
     })
     .catch((err) => {
       if (err.kind === "ObjectId") {
-        return res.status(404).send({
-      
-        });
+        return res.status(404).send({});
       }
-      return res.status(500).send({
-        
-      });
+      return res.status(500).send({});
     });
 };
 

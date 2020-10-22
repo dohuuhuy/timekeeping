@@ -6,7 +6,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 x = require("./app/controllers/support_record.controller");
-x.findAll();
+//x.findAll();
+y = require("./app/controllers/check.controller");
+//y.create();
 
 //check.SetUpChecksInDay();
 

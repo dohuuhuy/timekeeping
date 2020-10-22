@@ -2,7 +2,6 @@ const { Timestamp } = require("mongodb");
 const mongoose = require("mongoose");
 
 const locationSchema = mongoose.Schema({
-  
   locationId: String,
   partnerId: String,
   name: String,
@@ -14,10 +13,10 @@ const locationSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  condition :  {
-    type: Number,
-    default: 1
-},
+  condition: {
+    type: Object,
+    default: {},
+  },
 });
 
 module.exports = mongoose.model(

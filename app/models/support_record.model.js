@@ -2,13 +2,16 @@ const db = require("mongoose");
 
 const support_recordChema = db.Schema({
   supporterId: String,
-  userId: String,
+  userCode: String,
   time: {
     type: Date,
     default: Date.now(),
   },
   bookingCode: String,
-  verifyStatus: Number, // 0-success  1-fail
+  verifyStatus: {
+    type: Number,
+    default: 1,
+  }, // 0-success  1-fail
   verifyDescription: String,
 });
 

@@ -15,9 +15,9 @@ exports.create = (req, res) => {
 
   const note = new support_record({
     supporterId: req.body.supporterId,
-    userId: req.body.userId,
+    userCode: req.body.userCode,
     time: date,
-    bookingId: req.body.bookingId,
+    bookingCode: req.body.bookingCode,
     verifyStatus: req.body.verifyStatus,
     verifyDescription: req.body.verifyDescription,
   });
@@ -39,7 +39,7 @@ exports.findAll = async (req, res) => {
   const moment = require("moment");
 
   var dta = await axios.get(
-    "https://medpro-api-v2-testing.medpro.com.vn/booking-gateway/get-booking-by-transaction-code?transactionId=VPDev200916PI8WJZWPCCRY"
+    "https://medpro-api-v2-testing.medpro.com.vn/booking-gateway/get-booking-by-transaction-code?transactionId=VPDev201021CCLNJOQPYFEL"
   );
 
   let data = dta.data;
@@ -52,24 +52,21 @@ exports.findAll = async (req, res) => {
   console.log("curent time                :>> ", y);
 
   var diffInMinutes = y.diff(x, "minutes");
-  console.log("diffInMinutes :>> ", diffInMinutes, "phút");
+  console.log("thời gian tạo :>> ", diffInMinutes, "phút trước");
 
   if (diffInMinutes <= 10) {
-    console.log("phiếu tạo trong 10 phút");
+    console.log("--> phiếu tạo trong 10 phút");
   } else {
-    console.log("phiếu tạo > 10p");
+    console.log("--> phiếu đã tạo", diffInMinutes, "phút trước");
   }
 
-  //   support_record
-  //     .find({})
-  //     .then((schedules) => {
-  //       res.send(schedules);
-  //     })
-  //     .catch((err) => {
-  //       res.status(500).send({
-  //         message: err.message || "Some error occurred while retrieving notes.",
-  //       });
-  //     });
+  console.log("Mã bệnh nhân :>> ", data.patientInfo.code);
+  console.log("Mã phiếu khám :>> ", data.bookingInfo.bookingCode);
+
+  var x = await support_record.find({});
+  console.log("x :>> ", x);
+    
+
 };
 
 exports.findOne = (req, res) => {
@@ -77,7 +74,6 @@ exports.findOne = (req, res) => {
 
   support_record
     .find({ supporter: id })
-
     .then((note) => {
       if (!note) {
         return res.status(404).send({
