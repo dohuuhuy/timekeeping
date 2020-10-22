@@ -206,7 +206,7 @@ exports.create = async (req, res) => {
     check
       .save()
       .then((data) => {
-        res.send({ message: "Thành công" });
+        res.send({ succes: true, message: "Thành công" });
       })
       .catch((err) => {
         res.status(500).send({
@@ -217,29 +217,41 @@ exports.create = async (req, res) => {
   } else {
     if (ck == "Find-check") {
       var ms = !action ? "checkOut" : "checkIn";
-      errArr.push({ message: "Bạn phải " + ms });
+      errArr.push({ succes: false, message: "Bạn phải " + ms });
     }
 
     if (ck == "New-check") {
-      errArr.push({ message: "Phai checkIn vao ngay moi" });
+      errArr.push({ succes: false, message: "Phai checkIn vao ngay moi" });
     }
     if (ck == "No-IP") {
-      errArr.push({ message: "IP không thể xác thực", type: "IP" });
+      errArr.push({
+        succes: false,
+        message: "IP không thể xác thực",
+        type: "IP",
+      });
     }
     if (ck == "No-Wifi") {
-      errArr.push({ message: "wifi không thể xác thực", type: "wifi" });
+      errArr.push({
+        succes: false,
+        message: "wifi không thể xác thực",
+        type: "wifi",
+      });
     }
     if (ck == "No-GPS") {
-      errArr.push({ message: "Check ngoài phạm vi cho phép", type: "GPS" });
+      errArr.push({
+        succes: false,
+        message: "Check ngoài phạm vi cho phép",
+        type: "GPS",
+      });
     }
     if (ck == "No-condition") {
-      errArr.push({ message: "Không có conditions" });
+      errArr.push({ succes: false, message: "Không có conditions" });
     }
     if (ck == "No-User") {
-      errArr.push({ message: "Chua co user" });
+      errArr.push({ succes: false, message: "Chua co user" });
     }
     if (ck == "No-locationID") {
-      errArr.push({ message: "Không tìm thấy locationId" });
+      errArr.push({ succes: false, message: "Không tìm thấy locationId" });
     }
     console.log("LỖi >>>>>>>>", errArr);
 
@@ -255,6 +267,7 @@ exports.findAll = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
+        succes: false,
         message: err.message || "Some error occurred while retrieving .",
       });
     });
