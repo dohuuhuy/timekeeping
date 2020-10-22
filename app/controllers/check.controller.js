@@ -6,37 +6,29 @@ const moment = require("moment");
 
 const geolib = require("geolib");
 
-demo2 = ()=>{
-
-  a =1 , b =2 ;
-  if ( a + 1 == 1 )
-  {
+demo2 = () => {
+  (a = 1), (b = 2);
+  if (a + 1 == 1) {
     return "ok";
   }
   return "no-ok";
-
-}
+};
 
 exports.demo1 = (req, res) => {
-
   x = demo2();
-  if(x == "no-ok")
-  {
-    console.log("haha")
-    res.send({message:"hduhcehcnodw"})
+  if (x == "no-ok") {
+    console.log("haha");
+    res.send({ message: "hduhcehcnodw" });
   }
-
 };
 
 Check_INPUT = async (req) => {
   var data = req.body;
 
-  ip =
-    (req.headers["x-forwarded-for"] || "").split(",").pop().trim() ||
-    req.connection.remoteAddress ||
-    req.socket.remoteAddress ||
-    req.connection.socket.remoteAddress;
-  console.log("clientIp :>> ", ip);
+  _ip = req.connection.remoteAddress;
+
+  var ip = _ip.substring(7);
+  console.log("y :>> ", ip);
 
   var dateTime = new Date();
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
@@ -73,8 +65,13 @@ Check_INPUT = async (req) => {
       }
       if (
         checkCondition == "Wifi" ||
-        checkCondition == "GPS" ||  checkCondition == "IP" 
-        (checkCondition == "Wifi" && checkCondition == "GPS" && checkCondition == "IP" )
+        checkCondition == "GPS" ||
+        checkCondition ==
+          "IP" || (
+            checkCondition == "Wifi" &&
+              checkCondition == "GPS" &&
+              checkCondition == "IP"
+          )
       ) {
         return "Ok-check";
       }
@@ -107,15 +104,12 @@ CheckCondition = async (locationId, data, ip) => {
     for (let value of dta.condition) {
       console.log(value.type);
       if (value.type == "IP") {
-
-        if(ip.includes(value.details))
-        {
-          result = "IP"
+        if (value.details.includes(ip)) {
+          console.log("có ip trong danh sách");
+          result = "IP";
+        } else {
+          result = "No-IP";
         }
-        else{
-          result = "No-IP"
-        }
-
       }
 
       if (value.type == "Wifi") {
@@ -197,7 +191,6 @@ CheckLastchecksID = async (userId, action) => {
     }
   }
 };
-
 
 exports.create = async (req, res) => {
   const check = new Checks(req.body);
