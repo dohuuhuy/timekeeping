@@ -32,19 +32,15 @@ Check_INPUT = async (req) => {
       console.log("--> check action");
       if (checkCondition.success === false) {
         return checkCondition.type;
+      } else {
+        return "Ok-check";
       }
-      else {
-        return "Ok-check"
-      }
-
     }
     if (checklastchecks == "Skip-check") {
       if (action == 0) {
-
         if (checkCondition.success === false) {
           return checkCondition.type;
-        }
-        else {
+        } else {
           return "Ok-check";
         }
       } else {
@@ -63,20 +59,20 @@ CheckCondition = async (locationId, data, ip) => {
   // console.log("dta :>> ", dta);
 
   if (!dta) {
-    return { success: false, type: "No-locationID" }
+    return { success: false, type: "No-locationID" };
   } else {
     if (!dta.condition.length) {
       console.log("khong co conditons");
-      return { success: false, type: "No-condition" } // khong co conditions
+      return { success: false, type: "No-condition" }; // khong co conditions
     }
 
     for (var value of dta.condition) {
-      console.log('value type :>> ', value.type);
+      console.log("value type :>> ", value.type);
 
       switch (value.type) {
         case "IP":
           console.log("- IP");
-          //ip = "27.74.247.203";
+        //  ip = "27.74.247.203";
           if (!value.details.includes(ip)) {
             return { success: false, type: "IP" };
           }
@@ -121,12 +117,10 @@ CheckCondition = async (locationId, data, ip) => {
         default:
           break;
       }
-
     }
     return { success: true };
   }
-
-}
+};
 
 CheckLastchecksID = async (userId, action) => {
   const dta = await Checks.find({ userId: userId }).sort({ time: -1 }).limit(1); // lây thằng cuôi cùng
@@ -160,62 +154,64 @@ CheckLastchecksID = async (userId, action) => {
 exports.create = async (req, res) => {
   const check = new Checks(req.body);
   var ck = await Check_INPUT(req);
-  var errArr = ""
-
+  var errArr = "";
   var action = req.body.action;
 
-  if (ck == "Ok-check") {
-    check
-      .save()
-      .then((data) => {
-        res.send({ success: true, message: "Thành công" });
-      })
-      .catch((err) => {
-        res
-          .status(500)
-          .send({ success: false, message: err.message || "Bị gián đoạn" });
-      });
-  //  res.send({ message: "Thành công" });
-  } else {
-    if (ck == "Find-check") {
-      var ms = !action ? "checkOut" : "checkIn";
-      errArr = { message: "Bạn phải " + ms };
-    }
-
-    if (ck == "New-check") {
+  switch (ck) {
+    case "Find-check":
+      errArr = { message: "Bạn phải " + (!action ? "checkOut" : "checkIn") };
+      break;
+    case "New-check":
       errArr = { message: "Phai checkIn vao ngay moi" };
-    }
-    if (ck == "IP") {
+      break;
+
+    case "IP":
       errArr = {
         message: "IP không thể xác thực",
         type: "IP",
       };
-    }
-    if (ck == "Wifi") {
+      break;
+    case "Wifi":
       errArr = {
         message: "wifi không thể xác thực",
         type: "wifi",
       };
-    }
-    if (ck == "GPS") {
+      break;
+    case "GPS":
       errArr = {
         message: "Check ngoài phạm vi cho phép",
         type: "GPS",
       };
-    }
-    if (ck == "No-condition") {
+      break;
+    case "No-condition":
       errArr = { message: "Không có conditions" };
-    }
-    if (ck == "No-User") {
+      break;
+    case "No-User":
       errArr = { message: "Chua co user" };
-    }
-    if (ck == "No-locationID") {
+      break;
+    case "No-locationID":
       errArr = { message: "Không tìm thấy locationId" };
-    }
-    console.log("LỖi >>>>>>>>", errArr);
+      break;
+    case "Ok-check":
+     return await check
+        .save()
+        .then((data) => {
+          res.send({ success: true, message: "Thành công" });
+        })
+        .catch((err) => {
+          res
+            .status(500)
+            .send({ success: false, message: err.message || "Bị gián đoạn" });
+        });
+      //  res.send({ message: "Thành công" });
+      
 
-    res.send({ success: false, error: errArr });
+    default:
+      errArr = { message: "Không tìm thấy " };
+      break;
   }
+
+   res.send({ success: false, error: errArr });
 };
 
 exports.findAll = (req, res) => {
@@ -250,6 +246,6 @@ exports.findOne = (req, res) => {
     });
 };
 
-exports.update = (req, res) => { };
+exports.update = (req, res) => {};
 
-exports.delete = (req, res) => { };
+exports.delete = (req, res) => {};

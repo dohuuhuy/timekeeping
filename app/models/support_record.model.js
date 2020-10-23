@@ -12,7 +12,10 @@ const support_recordChema = db.Schema({
     type: Number,
     default: 1,
   }, // 0-success  1-fail
-  verifyDescription: String,
+  verifyDescription: {
+    type: String,
+    default: null,
+  },
 });
 
 module.exports = db.model(
