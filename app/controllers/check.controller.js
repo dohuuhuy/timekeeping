@@ -206,17 +206,17 @@ exports.create = async (req, res) => {
       errArr = { message: "Không tìm thấy locationId" };
       break;
     case "Ok-check":
-      // return await check
-      //   .save()
-      //   .then((data) => {
-      //     res.send({ success: true, message: "Thành công" });
-      //   })
-      //   .catch((err) => {
-      //     res
-      //       .status(500)
-      //       .send({ success: false, message: err.message || "Bị gián đoạn" });
-      //   });
-      return res.send({ message: "Thành công" });
+      return await check
+        .save()
+        .then((data) => {
+          res.send({ success: true, message: "Thành công" });
+        })
+        .catch((err) => {
+          res
+            .status(500)
+            .send({ success: false, message: err.message || "Bị gián đoạn" });
+        });
+    //    return res.send({ message: "Thành công" });
     default:
       errArr = { message: "Không tìm thấy " };
       break;
