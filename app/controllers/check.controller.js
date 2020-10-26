@@ -98,7 +98,6 @@ CheckCondition = async (locationId, data, ip) => {
 
           if (
             wifi_Client.bssid !== wifi_Server.bssid ||
-            wifi_Client.ipAddress !== wifi_Server.ipAddress ||
             wifi_Client.ssid !== wifi_Server.ssid
           ) {
             console.log("wifi loi :>> ");
