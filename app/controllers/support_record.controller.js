@@ -44,19 +44,13 @@ checkUserIsNew = async (req, res) => {
 }
 
 exports.create = async (req, res) => {
-
-
   var date = new Date();
 
   var _checkUserIsNew = await checkUserIsNew(req, res);
   if (_checkUserIsNew.success === false) {
-
     res.send({ success: false, message: "không co dữ liệu để kiểm tra" });
-  }
-
-else
-{
-  const support_record = new Support_record({
+  } else {
+    const support_record = new Support_record({
       supporterId: req.body.supporterId,
       userCode: req.body.userCode,
       time: date,
@@ -72,16 +66,11 @@ else
       })
       .catch((err) => {
         res.status(500).send({
-          message: err.message || "Some error occurred while creating the Note.",
+          message:
+            err.message || "Some error occurred while creating the Note.",
         });
       });
-}
-    
-
-  
-
-
-
+  }
 };
 
 exports.findAll = (req, res) => {

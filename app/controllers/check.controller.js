@@ -11,7 +11,7 @@ Check_INPUT = async (req) => {
   _ip = req.connection.remoteAddress;
 
   var ip = _ip.substring(7);
-  // console.log("y :>> ", ip);
+  console.log("y :>> ", _ip);
 
   var dateTime = new Date();
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
@@ -25,11 +25,18 @@ Check_INPUT = async (req) => {
 
   if (countUserId <= 0) {
     console.log("--> chưa có user");
-    return "Ok-check"; // No-user
+    console.log("checkCondition.success :>> ", checkCondition);
+    if (checkCondition.success === false) {
+      return checkCondition.type;
+    } else {
+      return "Ok-check";
+    }
   } else {
     console.log("--> đã có user");
     if (checklastchecks == "Ok-check") {
       console.log("--> check action");
+
+      console.log("checkCondition.success :>> ", checkCondition);
       if (checkCondition.success === false) {
         return checkCondition.type;
       } else {
@@ -56,7 +63,7 @@ Check_INPUT = async (req) => {
 
 CheckCondition = async (locationId, data, ip) => {
   var dta = await Location.findOne({ locationId: locationId });
-  // console.log("dta :>> ", dta);
+  //  console.log("dta :>> ", dta);
 
   if (!dta) {
     return { success: false, type: "No-locationID" };
@@ -71,9 +78,11 @@ CheckCondition = async (locationId, data, ip) => {
 
       switch (value.type) {
         case "IP":
-          console.log("- IP");
-        //  ip = "27.74.247.203";
+          console.log("- IP" + ip);
+
+         // ip = "27.74.247.203";
           if (!value.details.includes(ip)) {
+            console.log("IP loi :>> ");
             return { success: false, type: "IP" };
           }
 
@@ -84,11 +93,15 @@ CheckCondition = async (locationId, data, ip) => {
           wifi_Client = data.wifiDetail.details;
           wifi_Server = value.details;
 
+          console.log("wifi_Client", wifi_Client);
+          console.log("wifi_Server :>> ", wifi_Server);
+
           if (
-            wifi_Client.bssid !== wifi_Server.bssid &&
-            wifi_Client.ipAddress !== wifi_Server.ipAddress &&
+            wifi_Client.bssid !== wifi_Server.bssid ||
+            wifi_Client.ipAddress !== wifi_Server.ipAddress ||
             wifi_Client.ssid !== wifi_Server.ssid
           ) {
+            console.log("wifi loi :>> ");
             return { success: false, type: "Wifi" };
           }
 
@@ -111,6 +124,7 @@ CheckCondition = async (locationId, data, ip) => {
 
           var condition = value.details;
           if (khoangCach >= condition) {
+            console.log("GPS loi :>> ");
             return { success: false, type: "GPS" };
           }
           break;
@@ -164,7 +178,6 @@ exports.create = async (req, res) => {
     case "New-check":
       errArr = { message: "Phai checkIn vao ngay moi" };
       break;
-
     case "IP":
       errArr = {
         message: "IP không thể xác thực",
@@ -193,25 +206,23 @@ exports.create = async (req, res) => {
       errArr = { message: "Không tìm thấy locationId" };
       break;
     case "Ok-check":
-     return await check
-        .save()
-        .then((data) => {
-          res.send({ success: true, message: "Thành công" });
-        })
-        .catch((err) => {
-          res
-            .status(500)
-            .send({ success: false, message: err.message || "Bị gián đoạn" });
-        });
-      //  res.send({ message: "Thành công" });
-      
-
+      // return await check
+      //   .save()
+      //   .then((data) => {
+      //     res.send({ success: true, message: "Thành công" });
+      //   })
+      //   .catch((err) => {
+      //     res
+      //       .status(500)
+      //       .send({ success: false, message: err.message || "Bị gián đoạn" });
+      //   });
+      return res.send({ message: "Thành công" });
     default:
       errArr = { message: "Không tìm thấy " };
       break;
   }
 
-   res.send({ success: false, error: errArr });
+  res.send({ success: false, error: errArr });
 };
 
 exports.findAll = (req, res) => {
@@ -228,22 +239,36 @@ exports.findAll = (req, res) => {
     });
 };
 
-exports.findOne = (req, res) => {
-  Checks.findOne({ userId: req.params.checkId })
-    .sort({ time: -1 })
-    .limit(1)
-    .then((checks) => {
-      if (!checks) {
-        return res.status(404).send({});
-      }
-      res.send(checks);
-    })
-    .catch((err) => {
-      if (err.kind === "ObjectId") {
-        return res.status(404).send({});
-      }
-      return res.status(500).send({});
-    });
+exports.findOne = async (req, res) => {
+ 
+
+  const dta = await Checks.findOne({ userId: req.params.checkId }).sort({ time: -1 }).limit(1);
+
+  console.log("dta :>> ", dta);
+
+  if (dta) {
+    var date = new Date(); // ngay hiện tại
+    var time = dta.time; // ngày trong db
+
+    var x = moment(time).format("YYYY-MM-DD HH:mm:ss");
+    var lastDate = moment(time).format("l"); //  10/21/2020
+    var curDate = moment(date).format("l"); //  10/21/2020
+    console.log("curDate :>> ", curDate);
+    console.log("lastDate :>> ", x);
+
+    if (lastDate != curDate) {
+      return res.send({success:false, message:"không có last check trong ngày !"});
+    }
+    else{
+      return res.send(dta);
+    }
+
+  }
+  else
+  {
+     return res.send({success:false,message:"không có data !"});
+  }
+ 
 };
 
 exports.update = (req, res) => {};
