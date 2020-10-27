@@ -5,19 +5,13 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-x = require("./app/controllers/support_record.controller");
-//x.findAll();
-y = require("./app/controllers/check.controller");
-//y.create();
-
-//check.SetUpChecksInDay();
-
-
 app.get("/", (req, res) => {
   res.json({ message: "Welcome " });
 });
 const dbConfig = require("./config/database.config.js");
 const mongoose = require("mongoose");
+const worktime = require("./app/routes/worktime.router");
+const sp = require("./app/routes/sp.routes");
 mongoose.Promise = global.Promise;
 mongoose
   .connect(dbConfig.url, {
@@ -26,7 +20,7 @@ mongoose
     auto_reconnect: true,
   })
   .then(() => {
-    //   console.log("Successfully connected to the database \n");
+    //  console.log("Successfully connected to the database \n");
   })
   .catch((err) => {
     console.log("Could not connect to the database. Exiting now...", err);
@@ -38,7 +32,10 @@ db.connect((err) => {
     console.log("unable to connect to database");
     process.exit(1);
   } else {
-    require("./app/routes/routes.js")(app);
+
+    app.use("/worktime", worktime);
+    app.use("/api/account", sp);
+
     const PORT = process.env.PORT || 80;
     app.listen(PORT, () => {
       console.log(

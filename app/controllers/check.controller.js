@@ -270,6 +270,85 @@ exports.findOne = async (req, res) => {
  
 };
 
-exports.update = (req, res) => {};
+exports.update = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Data to update can not be empty!",
+    });
+  }
 
-exports.delete = (req, res) => {};
+  const id = req.params.checkId;
+
+  Checks.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+    .then((data) => {
+      if (!data) {
+        res.status(404).send({
+          message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found!`,
+        });
+      } else res.send({ message: "Tutorial was updated successfully." });
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Error updating Tutorial with id=" + id,
+      });
+    });
+};
+
+exports.delete = (req, res) => {
+  const id = req.params.checkId;
+
+  Checks.findOneAndRemove({ userId: id })
+    .then((data) => {
+      if (!data) {
+        res.status(404).send({
+          message: `Cannot delete with id=${id}. Maybe  was not found!`,
+        });
+      } else {
+        res.send({
+          message: " was deleted successfully!",
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Could not delete with id=" + id,
+      });
+    });
+};
+exports.deleteID = (req, res) => {
+  const id = req.params.checkId;
+
+  Checks.findByIdAndRemove(id)
+    .then((data) => {
+      if (!data) {
+        res.status(404).send({
+          message: `Cannot delete with id=${id}. Maybe  was not found!`,
+        });
+      } else {
+        res.send({
+          message: " was deleted successfully!",
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Could not delete with id=" + id,
+      });
+    });
+};
+
+
+exports.deleteAll = (req, res) => {
+  Checks.deleteMany({})
+    .then((data) => {
+      res.send({
+        message: `${data.deletedCount} Tutorials were deleted successfully!`,
+      });
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while removing all tutorials.",
+      });
+    });
+};
