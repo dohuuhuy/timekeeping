@@ -135,7 +135,7 @@ exports.findOne = async (req, res) => {
     message: "Thành công",
     data: {
       MSBN: patient_Code,
-      partner_code: patientCode[0],
+      patient_code: patientCode[0],
       patients: patients,
       User: users[0],
     },
