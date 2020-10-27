@@ -28,7 +28,7 @@ exports.createUserAcc = async (req, res) => {
     .collection("patients")
     .find({ id: patientId })
     .toArray();
-  console.log("patient_codes :>> ", patients.length);
+  console.log("patient_codes :>> ", patients);
 
   var ID_in_patients = patients[0]._id;
   console.log("ID_in_patients :>> ", ID_in_patients);
@@ -53,7 +53,8 @@ exports.createUserAcc = async (req, res) => {
     message: "Thành công",
     data: {
       MSBN: patient_Code,
-      partner: patientCode[0],
+      patient_Code: patientCode[0],
+      patients: patients[0],
       User: users[0],
     },
   });
@@ -109,7 +110,7 @@ exports.findOne = async (req, res) => {
     .collection("patients")
     .find({ id: patientId })
     .toArray();
-  console.log("patient_codes :>> ", patients.length);
+  console.log("patient_codes :>> ", patients);
 
   var ID_in_patients = patients[0]._id;
   console.log("ID_in_patients :>> ", ID_in_patients);
@@ -134,7 +135,8 @@ exports.findOne = async (req, res) => {
     message: "Thành công",
     data: {
       MSBN: patient_Code,
-      partner: patientCode[0],
+      partner_code: patientCode[0],
+      patients: patients,
       User: users[0],
     },
   });
