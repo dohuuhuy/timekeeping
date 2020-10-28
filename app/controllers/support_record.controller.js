@@ -1,54 +1,122 @@
 const Support_record = require("../models/support_record.model");
 const moment = require("moment");
 const axios = require("axios");
+const db = require("./../models/db");
+
+DiffInMinutes = (createdAt) => {
+  var date = new Date();
+  var curDate = moment(date);
+  var bookingDate = moment(createdAt);
+  var diffInMinutes = curDate.diff(bookingDate, "minutes");
+  return diffInMinutes;
+};
 
 checkUserIsNew = async (req, res) => {
-  try {
-    var dta = await axios.get(
-      "https://medpro-api-v2-testing.medpro.com.vn/booking-gateway/get-booking-by-transaction-code?transactionId=VPDev201021CCLNJOQPYFEL"
-    );
-    let data = dta.data;
-    var x1 = data.bookingInfo.createdAt;
-  
-    var y1 = new Date();
-    var x = moment(x1);
-    var y = moment(x1);
-    var diffInMinutes = y.diff(x, "minutes");
-    var listBook = 1;
-  
-    console.log("data.bookingInfo.createdAt :>> ", x);
-    console.log("curent time                :>> ", y);
+  var data = req.body;
+  if (data.bookingCode) {
+    var bookingCode = data.bookingCode;
+    try {
+      var bookings = await db
+      .getDB()
+      .collection("bookings")
+      .find({ bookingCode: bookingCode })
+      .toArray();
+    //console.log("Tìm_booking_code :>> ", bookings);
+
+    var userId = bookings[0].userId;
+    var createdAt = bookings[0].createdAt;
+    var diffInMinutes = DiffInMinutes(createdAt);
+
+    var listBookings = await db
+      .getDB()
+      .collection("bookings")
+      .find({ userId: userId })
+      .count();
+
+    console.log("listBookings :>> ", listBookings);
     console.log("thời gian tạo :>> ", diffInMinutes, "phút trước");
-    console.log("Mã bệnh nhân :>> ", data.patientInfo.code);
-    console.log("Mã phiếu khám :>> ", data.bookingInfo.bookingCode);
-  
+
     if (diffInMinutes > 10) {
-      console.log("--> phiếu đã tạo", diffInMinutes, "phút trước");
-      res.send({ success: false, message: "Phiếu đã tạo " + diffInMinutes + " phút trước" });
-      //  return {success: false, message:"Phiếu đã tạo" + diffInMinutes + "phút trước"};
+      return { success: false, message: "Thời gian" };
     }
-    if (listBook != 1) {
-      res.send({ success: false, message: "List > 1 " });
-      //  return {success: false, message:"List > 1 "}
+    if (listBookings > 1) {
+      return { success: false, message: "Số lượng" };
     }
-    else {
-  
-      return { success: true, message: "Thành công", }
+    return { success: true, message: "User mới" };
+    } catch (error) {
+      return { success: false, message: "Không tìm thấy bookingCode" };
     }
   
-    handleClearData();
-  } catch (error) {
-    return { success: false};
   }
 
-}
+  if (data.userCode) {
+    var code = data.userCode;
+
+    try {
+      var patients = await db
+        .getDB()
+        .collection("patients")
+        .find({ code: code })
+        .toArray();
+
+      console.log("patients :>> ", patients);
+      var userId = patients[0].userId;
+      var createdAt = patients[0].createdAt;
+
+      var users = await db
+        .getDB()
+        .collection("users")
+        .find({ _id: userId })
+        .toArray();
+
+      console.log("Tìm_users :>> ", users);
+      var userId = users[0]._id.toString();
+      // console.log('userId :>> ', userId);
+      var listBookings = await db
+        .getDB()
+        .collection("bookings")
+        .find({ userId: userId })
+        .count();
+
+      console.log("listBookings :>> ", listBookings);
+
+      var bookings = await db
+        .getDB()
+        .collection("bookings")
+        .find({ userId: userId })
+        .sort({ createdAt: 1 })
+        .toArray();
+
+      var createdAt = bookings[0].createdAt;
+
+      var diffInMinutes = DiffInMinutes(createdAt);
+      console.log("thời gian tạo :>> ", diffInMinutes, "phút trước");
+
+      if (listBookings > 1) {
+        return { success: false, message: "Số lượng" };
+      }
+      if (diffInMinutes > 10) {
+        return { success: false, message: "Thời gian" };
+      }
+      return { success: true, message: "User mới" };
+    } catch (error) {
+          //  res.send({ success: false, message: "Dữ liệu không hợp lệ" });
+      return { success: false, message: "Không tìm thấy userCode !" };
+    }
+  } else {
+      //  res.send({ success: false, message: "Dữ liệu không hợp lệ" });
+    return { success: false, message: "Dữ liệu không hợp lệ !" };
+  }
+};
 
 exports.create = async (req, res) => {
   var date = new Date();
 
   var _checkUserIsNew = await checkUserIsNew(req, res);
+  console.log("object", _checkUserIsNew);
+
   if (_checkUserIsNew.success === false) {
-    res.send({ success: false, message: "không co dữ liệu để kiểm tra" });
+    res.send({ success: false, message: _checkUserIsNew.message});
   } else {
     const support_record = new Support_record({
       supporterId: req.body.supporterId,
@@ -62,7 +130,7 @@ exports.create = async (req, res) => {
     support_record
       .save()
       .then((data) => {
-        res.send({ success: true, message: "post thành công !", data: data });
+        res.send({ success: true, message: "Thêm thành công !", data: data });
       })
       .catch((err) => {
         res.status(500).send({
@@ -74,22 +142,15 @@ exports.create = async (req, res) => {
 };
 
 exports.findAll = (req, res) => {
-
-
-
   Support_record.find({}).then((data) => {
     res.send(data);
-  })
-
-
-
+  });
 };
 
 exports.findOne = (req, res) => {
   var id = req.params.sp_recordId;
 
-  Support_record
-    .find({ supporter: id })
+  Support_record.find({ supporter: id })
     .then((note) => {
       if (!note) {
         return res.status(404).send({
@@ -117,15 +178,14 @@ exports.update = (req, res) => {
     });
   }
 
-  Support_record
-    .findByIdAndUpdate(
-      req.params.noteId,
-      {
-        title: req.body.title || "Untitled Note",
-        content: req.body.content,
-      },
-      { new: true }
-    )
+  Support_record.findByIdAndUpdate(
+    req.params.noteId,
+    {
+      title: req.body.title || "Untitled Note",
+      content: req.body.content,
+    },
+    { new: true }
+  )
     .then((note) => {
       if (!note) {
         return res.status(404).send({
@@ -147,8 +207,7 @@ exports.update = (req, res) => {
 };
 
 exports.delete = (req, res) => {
-  Support_record
-    .findByIdAndRemove(req.params.noteId)
+  Support_record.findByIdAndRemove(req.params.noteId)
     .then((note) => {
       if (!note) {
         return res.status(404).send({
