@@ -1,6 +1,6 @@
 const Support_record = require("../models/support_record.model");
 const moment = require("moment");
-const axios = require("axios");
+
 const db = require("./../models/db");
 
 DiffInMinutes = (createdAt) => {
