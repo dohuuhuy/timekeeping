@@ -37,12 +37,12 @@ checkUserIsNew = async (req, res) => {
     console.log("thời gian tạo :>> ", diffInMinutes, "phút trước");
 
     if (diffInMinutes > 10) {
-      return { success: false, message: "Thời gian" };
+      return { success: false, message: "Thời gian quá giới hạn" };
     }
     if (listBookings > 1) {
-      return { success: false, message: "Số lượng" };
+      return { success: false, message: "Số lượng quá giới hạn" };
     }
-    return { success: true, message: "User mới" };
+    return { success: true, message: "Là User mới" };
     } catch (error) {
       return { success: false, message: "Không tìm thấy bookingCode" };
     }
@@ -93,12 +93,12 @@ checkUserIsNew = async (req, res) => {
       console.log("thời gian tạo :>> ", diffInMinutes, "phút trước");
 
       if (listBookings > 1) {
-        return { success: false, message: "Số lượng" };
+        return { success: false, message: "Số lượng quá giới hạn" };
       }
       if (diffInMinutes > 10) {
-        return { success: false, message: "Thời gian" };
+        return { success: false, message: "Thời gian quá giới hạn" };
       }
-      return { success: true, message: "User mới" };
+      return { success: true, message: "Là User mới" };
     } catch (error) {
           //  res.send({ success: false, message: "Dữ liệu không hợp lệ" });
       return { success: false, message: "Không tìm thấy userCode !" };
@@ -116,7 +116,10 @@ exports.create = async (req, res) => {
   console.log("object", _checkUserIsNew);
 
   if (_checkUserIsNew.success === false) {
-    res.send({ success: false, message: _checkUserIsNew.message});
+    res.send({
+      success: false,
+      message: [_checkUserIsNew.message, "Không phải user mới"],
+    });
   } else {
     const support_record = new Support_record({
       supporterId: req.body.supporterId,
