@@ -9,21 +9,18 @@ const state = {
     db : null
 };
 
-const connect = (cb) =>{
+const connect = () =>{
 
     if(state.db)
-        cb();
+    {}
     else{
 
         MongoClient.connect(dbConfig.url,mongoOptions,(err,client)=>{
 
-            if(err)
-                cb(err);
-
-            else{
-                state.db = client.db(dbname);
-                cb();
-            }
+            if(!err)
+              
+  state.db = client.db(dbname);
+           
         });
     }
 }

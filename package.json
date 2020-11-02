@@ -19,6 +19,7 @@
     "moment": "^2.29.1",
     "mongodb": "^3.6.2",
     "mongoose": "^5.10.9",
+    "node-excel-export": "^1.4.4",
     "nodemon": "^2.0.6",
     "request-ip": "^2.1.3"
   }
