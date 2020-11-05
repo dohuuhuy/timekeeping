@@ -5,9 +5,13 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "consumer": "nodemon kafka/consumer.app.js",
+    "producer":"nodemon kafka/producer.app.js"
   },
   "author": "",
+
+
   "license": "ISC",
   "dependencies": {
     "axios": "^0.20.0",
@@ -17,6 +21,7 @@
     "express": "^4.17.1",
     "geolib": "^3.3.1",
     "jsonwebtoken": "^8.5.1",
+    "kafka-node": "^5.0.0",
     "moment": "^2.29.1",
     "mongodb": "^3.6.2",
     "mongoose": "^5.10.9",
