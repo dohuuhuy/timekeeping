@@ -11,7 +11,7 @@ const mongoose = require("mongoose");
 const worktime = require("./app/routes/worktime.router");
 const sp = require("./app/routes/sp.routes");
 const rate = require("./app/routes/Rate");
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 3000;
 
 
 mongoose.Promise = global.Promise;

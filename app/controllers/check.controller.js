@@ -87,7 +87,7 @@ CheckCondition = async (locationId, data, ip) => {
           }
 
           break;
-          
+
         // case "Wifi":
         //   console.log("- wifi");
 
@@ -249,6 +249,7 @@ exports.history_Checks_By_Date = (req, res) => {
   let fromDate = req.body.fromDate;
   let toDate = req.body.toDate;
   let userId = req.body.userId;
+  let partnerId = req.body.partnerId;
   var date = new Date(toDate);
 
   // add a day
@@ -256,6 +257,7 @@ exports.history_Checks_By_Date = (req, res) => {
 
   Checks.find({
     userId ,
+    partnerId,
     time: {
       $gte: new Date(fromDate),
       $lte: date,
