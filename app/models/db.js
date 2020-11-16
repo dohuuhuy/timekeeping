@@ -1,38 +1,29 @@
 const MongoClient = require("mongodb").MongoClient;
-const ObjectID = require('mongodb').ObjectID;
+const ObjectID = require("mongodb").ObjectID;
 const dbname = "report";
 const dbConfig = require("../../config/database.config");
 
-const mongoOptions = {useNewUrlParser : true,  useUnifiedTopology: true};
+const mongoOptions = { useNewUrlParser: true, useUnifiedTopology: true };
 
 const state = {
-    db : null
+  db: null,
 };
 
-const connect = () =>{
+const connect = () => {
+  if (state.db) {
+  } else {
+    MongoClient.connect(dbConfig.url, mongoOptions, (err, client) => {
+      if (!err) state.db = client.db(dbname);
+    });
+  }
+};
 
-    if(state.db)
-    {}
-    else{
+const getPrimaryKey = (_id) => {
+  return ObjectID(_id);
+};
 
-        MongoClient.connect(dbConfig.url,mongoOptions,(err,client)=>{
+const getDB = () => {
+  return state.db;
+};
 
-            if(!err)
-              
-  state.db = client.db(dbname);
-           
-        });
-    }
-}
-
-
-const getPrimaryKey = (_id)=>{
-    return ObjectID(_id);
-}
-
-
-const getDB = ()=>{
-    return state.db;
-}
-
-module.exports = {getDB,connect,getPrimaryKey};
+module.exports = { getDB, connect, getPrimaryKey };

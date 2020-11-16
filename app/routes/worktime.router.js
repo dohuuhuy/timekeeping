@@ -6,6 +6,8 @@ router.post("/checks", check.create);
 
 router.get("/checks", check.findAll);
 
+router.get("/history_checks/:fromDate/:toDate", check.history_Checks_By_Date);
+
 router.get("/lastCheck/:checkId", check.findOne);
 
 router.put("/checks/:checkId", check.update);

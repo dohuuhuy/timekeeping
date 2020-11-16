@@ -80,7 +80,7 @@ CheckCondition = async (locationId, data, ip) => {
         case "IP":
           console.log("- IP" + ip);
 
-         // ip = "27.74.247.203";
+          // ip = "27.74.247.203";
           if (!value.details.includes(ip)) {
             console.log("IP loi :>> ");
             return { success: false, type: "IP" };
@@ -238,10 +238,34 @@ exports.findAll = (req, res) => {
     });
 };
 
-exports.findOne = async (req, res) => {
- 
 
-  const dta = await Checks.findOne({ userId: req.params.checkId }).sort({ time: -1 }).limit(1);
+exports.history_Checks_By_Date = (req, res) => {
+
+  let fromDate = req.params.fromDate;
+  let toDate = req.params.toDate;
+  Checks.find({
+    time: {
+      $gte: new Date(fromDate),
+      $lte: new Date(toDate),
+    },
+  })
+    .then((checks) => {
+      res.send(checks);
+      console.log(checks);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        success: false,
+        message: err.message || "Some error occurred while retrieving .",
+      });
+    });
+};
+
+
+exports.findOne = async (req, res) => {
+  const dta = await Checks.findOne({ userId: req.params.checkId })
+    .sort({ time: -1 })
+    .limit(1);
 
   console.log("dta :>> ", dta);
 
@@ -256,18 +280,16 @@ exports.findOne = async (req, res) => {
     console.log("lastDate :>> ", x);
 
     if (lastDate != curDate) {
-      return res.send({success:false, message:"không có last check trong ngày !"});
-    }
-    else{
+      return res.send({
+        success: false,
+        message: "không có last check trong ngày !",
+      });
+    } else {
       return res.send(dta);
     }
-
+  } else {
+    return res.send({ success: false, message: "không có data !" });
   }
-  else
-  {
-     return res.send({success:false,message:"không có data !"});
-  }
- 
 };
 
 exports.update = (req, res) => {
@@ -336,7 +358,6 @@ exports.deleteID = (req, res) => {
       });
     });
 };
-
 
 exports.deleteAll = (req, res) => {
   Checks.deleteMany({})

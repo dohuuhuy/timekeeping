@@ -33,7 +33,7 @@ start_server = async () => {
 
 
   app.get("/", function (req, res) {
-    res.json({ greeting: "Kafka Producer" });
+    res.json({ greeting: "Worktime wellcome" });
   });
 
   app.listen(PORT, () => {
