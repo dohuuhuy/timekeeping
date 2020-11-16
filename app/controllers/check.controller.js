@@ -239,23 +239,18 @@ exports.findAll = (req, res) => {
     });
 };
 
-
-exports.history_Checks_By_Date = (req, res) => {
-
-
- // res.send({ms: req.body});
-
+exports.history_Checks_By_Date = async(req, res) => {
 
   let fromDate = req.body.fromDate;
   let toDate = req.body.toDate;
   let userId = req.body.userId;
   let partnerId = req.body.partnerId;
-  var date = new Date(toDate);
 
-  // add a day
+  var date = new Date(toDate);
   date.setDate(date.getDate() + 1);
 
-  Checks.find({
+
+  var rs = await Checks.find({
     userId ,
     partnerId,
     time: {
@@ -263,16 +258,9 @@ exports.history_Checks_By_Date = (req, res) => {
       $lte: date,
     },
   })
-    .then((checks) => {
-      res.send(checks);
-      console.log(checks);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        success: false,
-        message: err.message || "Some error occurred while retrieving .",
-      });
-    });
+
+  console.log('rs', rs)
+  res.send({ms:"fv"})
 
   };
 
