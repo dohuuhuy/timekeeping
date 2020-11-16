@@ -241,12 +241,23 @@ exports.findAll = (req, res) => {
 
 exports.history_Checks_By_Date = (req, res) => {
 
-  let fromDate = req.params.fromDate;
-  let toDate = req.params.toDate;
+
+ // res.send({ms: req.body});
+
+
+  let fromDate = req.body.fromDate;
+  let toDate = req.body.toDate;
+  let userId = req.body.userId;
+  var date = new Date(toDate);
+
+  // add a day
+  date.setDate(date.getDate() + 1);
+
   Checks.find({
+    userId ,
     time: {
       $gte: new Date(fromDate),
-      $lte: new Date(toDate),
+      $lte: date,
     },
   })
     .then((checks) => {
@@ -259,7 +270,8 @@ exports.history_Checks_By_Date = (req, res) => {
         message: err.message || "Some error occurred while retrieving .",
       });
     });
-};
+
+  };
 
 
 exports.findOne = async (req, res) => {

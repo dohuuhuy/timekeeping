@@ -1,7 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const db = require("./app/models/db");
+
+
 const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+const db = require("./app/models/db");
 const dbConfig = require("./config/database.config.js");
 const mongoose = require("mongoose");
 const worktime = require("./app/routes/worktime.router");
@@ -27,8 +31,7 @@ start_server = async () => {
   app.use("/api/account", sp);
   app.use("/api", rate);
 
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(bodyParser.json());
+ 
 
 
 
