@@ -81,30 +81,31 @@ CheckCondition = async (locationId, data, ip) => {
           console.log("- IP" + ip);
 
           // ip = "27.74.247.203";
-          if (!value.details.includes(ip)) {
+          if (value.details.includes(ip)) {
             console.log("IP loi :>> ");
-            return { success: false, type: "IP" };
+            return { success: true, type: "IP" };
           }
 
           break;
-        case "Wifi":
-          console.log("- wifi");
+          
+        // case "Wifi":
+        //   console.log("- wifi");
 
-          wifi_Client = data.wifiDetail.details;
-          wifi_Server = value.details;
+        //   wifi_Client = data.wifiDetail.details;
+        //   wifi_Server = value.details;
 
-          console.log("wifi_Client", wifi_Client);
-          console.log("wifi_Server :>> ", wifi_Server);
+        //   console.log("wifi_Client", wifi_Client);
+        //   console.log("wifi_Server :>> ", wifi_Server);
 
-          if (
-            wifi_Client.bssid !== wifi_Server.bssid ||
-            wifi_Client.ssid !== wifi_Server.ssid
-          ) {
-            console.log("wifi loi :>> ");
-            return { success: false, type: "Wifi" };
-          }
+        //   if (
+        //     wifi_Client.bssid !== wifi_Server.bssid ||
+        //     wifi_Client.ssid !== wifi_Server.ssid
+        //   ) {
+        //     console.log("wifi loi :>> ");
+        //     return { success: false, type: "Wifi" };
+        //   }
 
-          break;
+        //   break;
         case "GPS":
           console.log("- GPS");
           var lat = dta.latitude;
@@ -122,16 +123,16 @@ CheckCondition = async (locationId, data, ip) => {
           console.log("khoangCach :>> ", khoangCach);
 
           var condition = value.details;
-          if (khoangCach >= condition) {
+          if (khoangCach <= condition) {
             console.log("GPS loi :>> ");
-            return { success: false, type: "GPS" };
+            return { success: true, type: "GPS" };
           }
           break;
         default:
           break;
       }
     }
-    return { success: true };
+    return { success: false };
   }
 };
 
