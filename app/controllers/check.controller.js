@@ -78,7 +78,7 @@ CheckCondition = async (locationId, data, ip) => {
 
       switch (value.type) {
         case "IP":
-          ip = "103.199.41.191";
+        //  ip = "103.199.41.191";
           console.log("- IP :>> " + ip);
 
           console.log(
