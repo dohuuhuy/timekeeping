@@ -279,7 +279,7 @@ exports.history_Checks_By_Date = async (req, res) => {
     },
   });
 
-  res.send({ ms: rs });
+  res.send(rs);
 };
 
 exports.findOne = async (req, res) => {
