@@ -3,7 +3,9 @@ const mongoose = require("mongoose");
 const CheckSchema = mongoose.Schema({
   partnerId: String,
   locationId: String,
+  locationDetail: Object,
   workshipId: String,
+  workshipDetail: Object,
   userId: String,
   latitude: String,
   longitude: String,

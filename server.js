@@ -41,8 +41,9 @@ start_server = async () => {
 
   app.listen(PORT, () => {
     console.log(
-      `Server is running on port ${PORT}. \n\n -----------------Console.log()--------------------------`
-    );
+      `Server is running on port http://localhost:${PORT}. \n\n -----------------Console.log()--------------------------`
+
+      );
   });
 };
 

@@ -80,7 +80,7 @@ CheckCondition = async (locationId, data, ip) => {
         case "IP":
           console.log("- IP" + ip);
 
-          // ip = "27.74.247.203";
+           ip = "27.74.247.203";
           if (value.details.includes(ip)) {
             console.log("IP loi :>> ");
             return { success: true, type: "IP" };
@@ -166,7 +166,28 @@ CheckLastchecksID = async (userId, action) => {
 };
 
 exports.create = async (req, res) => {
-  const check = new Checks(req.body);
+
+  const locationId = req.body.locationId;
+  const workshipId = req.body.workshipId;
+
+  const location = await Location.findOne({ locationId });
+  const workship = await Workship.findOne({ workshipId });
+
+
+  const obj = {
+    userId: req.body.userId,
+    locationId: req.body.locationId,
+    locationDetail: location,
+    workshipId: req.body.workshipId,
+    workshipDetail: workship,
+    partnerId: req.body.partnerId,
+    latitude :  req.body.latitude,
+    longitude: req.body. longitude,
+  };
+
+  console.log('obj :>> ', obj);
+  const check = new Checks(obj);
+
   var ck = await Check_INPUT(req);
   var errArr = "";
   var action = req.body.action;
@@ -184,12 +205,12 @@ exports.create = async (req, res) => {
         type: "IP",
       };
       break;
-    case "Wifi":
-      errArr = {
-        message: "wifi không thể xác thực",
-        type: "wifi",
-      };
-      break;
+    // case "Wifi":
+    //   errArr = {
+    //     message: "wifi không thể xác thực",
+    //     type: "wifi",
+    //   };
+    //   break;
     case "GPS":
       errArr = {
         message: "Check ngoài phạm vi cho phép",
@@ -221,8 +242,9 @@ exports.create = async (req, res) => {
       errArr = { message: "Không tìm thấy " };
       break;
   }
-
+ 
   res.send({ success: false, error: errArr });
+
 };
 
 exports.findAll = (req, res) => {
@@ -239,8 +261,7 @@ exports.findAll = (req, res) => {
     });
 };
 
-exports.history_Checks_By_Date = async(req, res) => {
-
+exports.history_Checks_By_Date = async (req, res) => {
   let fromDate = req.body.fromDate;
   let toDate = req.body.toDate;
   let userId = req.body.userId;
@@ -249,21 +270,17 @@ exports.history_Checks_By_Date = async(req, res) => {
   var date = new Date(toDate);
   date.setDate(date.getDate() + 1);
 
-
   var rs = await Checks.find({
-    userId ,
+    userId,
     partnerId,
     time: {
       $gte: new Date(fromDate),
       $lte: date,
     },
-  })
+  });
 
-  console.log('rs', rs)
-  res.send({ms:"fv"})
-
-  };
-
+  res.send({ ms: rs });
+};
 
 exports.findOne = async (req, res) => {
   const dta = await Checks.findOne({ userId: req.params.checkId })
@@ -294,7 +311,6 @@ exports.findOne = async (req, res) => {
     return res.send({ success: false, message: "không có data !" });
   }
 };
-
 exports.update = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
@@ -318,7 +334,6 @@ exports.update = (req, res) => {
       });
     });
 };
-
 exports.delete = (req, res) => {
   const id = req.params.checkId;
 
@@ -361,7 +376,6 @@ exports.deleteID = (req, res) => {
       });
     });
 };
-
 exports.deleteAll = (req, res) => {
   Checks.deleteMany({})
     .then((data) => {
