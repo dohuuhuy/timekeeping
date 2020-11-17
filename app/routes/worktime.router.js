@@ -8,7 +8,7 @@ router.get("/checks", check.findAll);
 
 router.post("/history_checks", check.history_Checks_By_Date);
 
-router.get("/lastCheck/:checkId", check.findOne);
+router.get("/lastCheck/:checkId", check.lastCheck);
 
 router.put("/checks/:checkId", check.update);
 
