@@ -9,6 +9,7 @@ const dbConfig = require("./config/database.config.js");
 const mongoose = require("mongoose");
 const worktime = require("./app/routes/worktime.router");
 const sp = require("./app/routes/sp.routes");
+const login = require("./app/routes/login.route");
 const { check_token_login } = require("./app/middleware/login.controller");
 
 
@@ -27,6 +28,7 @@ start_server = async () => {
   await mongoose.connect(dbConfig.url, opt_mongo);
 
   app.use("/worktime", check_token_login, worktime);
+  app.use("/api", login);
   app.use("/api/account",check_token_login, sp);
 
   app.get("/", function (req, res) {
