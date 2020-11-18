@@ -112,7 +112,7 @@ exports.create = async (req, res) => {
   var date = new Date();
 
   const obj = {
-    supporterId: res.locals.supportId,
+    supporterId: res.locals.userId,
     userCode: req.body.userCode,
     time: date,
     bookingCode: req.body.bookingCode,

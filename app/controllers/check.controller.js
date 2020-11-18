@@ -168,7 +168,7 @@ exports.create = async (req, res) => {
   const workship = await Workship.findOne({ workshipId });
 
   const obj = {
-    userId: req.body.userId,
+    userId: res.locals.userId,
     locationId: req.body.locationId,
     locationDetail: location,
     workshipId: req.body.workshipId,
