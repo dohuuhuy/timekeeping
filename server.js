@@ -27,7 +27,7 @@ start_server = async () => {
   await mongoose.connect(dbConfig.url, opt_mongo);
 
   app.use("/worktime", check_token_login, worktime);
-  app.use("/api/account", sp);
+  app.use("/api/account",check_token_login, sp);
 
   app.get("/", function (req, res) {
     res.json({ greeting: "Worktime wellcome" });

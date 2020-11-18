@@ -34,8 +34,8 @@ exports.check_token_login = async (req, res, next) => {
     const url =
       "https://medpro-api-v2-testing.medpro.com.vn/v1/userAccount/can-bo-yte/info";
     var x = await axios.get(url, options);
-    console.log("x.data", x.data);
-    // res.send(x.data);
+    console.log("x.data", x.data.userId);
+    res.locals.supportId = x.data.userId;
     return next();
   } catch (error) {
     console.log("x.data", error);
