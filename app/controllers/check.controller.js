@@ -5,6 +5,17 @@ const Location = require("../models/location.model.js");
 const moment = require("moment");
 const geolib = require("geolib");
 
+exports.demo1 = (req, res) => {
+  console.log(("helo ", req.body));
+
+  res.send(req.body)
+};
+exports.demo2 = (req, res) => {
+  console.log(("helo222222 ", req.body));
+  res.send(req.body)
+};
+
+
 Check_INPUT = async (req) => {
   var data = req.body;
 
@@ -78,7 +89,7 @@ CheckCondition = async (locationId, data, ip) => {
 
       switch (value.type) {
         case "IP":
-        //  ip = "103.199.41.191";
+          //  ip = "103.199.41.191";
           console.log("- IP :>> " + ip);
 
           console.log(
@@ -165,7 +176,7 @@ exports.create = async (req, res) => {
     partnerId: req.body.partnerId,
     latitude: req.body.latitude,
     longitude: req.body.longitude,
-    action: req.body.action
+    action: req.body.action,
   };
 
   console.log("obj :>> ", obj);
@@ -188,7 +199,7 @@ exports.create = async (req, res) => {
         type: "IP",
       };
       break;
-   
+
     case "GPS":
       errArr = {
         message: "Check ngoài phạm vi cho phép",

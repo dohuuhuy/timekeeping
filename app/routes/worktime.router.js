@@ -1,8 +1,15 @@
 const check = require("../controllers/check.controller.js");
+const {
+  check_token_login,
+  post_Login,
+} = require("../middleware/login.controller.js");
 
 var router = require("express").Router();
 
 router.post("/checks", check.create);
+
+router.post("/demo", check_token_login, check.demo1);
+router.get("/demo2", check_token_login, check.demo2);
 
 router.get("/checks", check.findAll);
 
@@ -41,5 +48,9 @@ router.get("/locations/:partnerId", locations.findOne);
 router.put("/locations/:partnerId", locations.update);
 
 router.delete("/locations/:partnerId", locations.delete);
+
+// router.post("/get_token_login", post_Login);
+
+// router.post("/check_token_login", check_token_login);
 
 module.exports = router;

@@ -1,7 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 
-
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -10,9 +9,10 @@ const dbConfig = require("./config/database.config.js");
 const mongoose = require("mongoose");
 const worktime = require("./app/routes/worktime.router");
 const sp = require("./app/routes/sp.routes");
-const rate = require("./app/routes/Rate");
-const PORT = process.env.PORT || 80;
+const { check_token_login } = require("./app/middleware/login.controller");
 
+
+const PORT = process.env.PORT || 80;
 
 mongoose.Promise = global.Promise;
 
@@ -23,17 +23,11 @@ var opt_mongo = {
 };
 
 start_server = async () => {
-  
   await db.connect();
   await mongoose.connect(dbConfig.url, opt_mongo);
 
-  app.use("/worktime", worktime);
+  app.use("/worktime", check_token_login, worktime);
   app.use("/api/account", sp);
-  app.use("/api", rate);
-
- 
-
-
 
   app.get("/", function (req, res) {
     res.json({ greeting: "Worktime wellcome" });
@@ -42,8 +36,7 @@ start_server = async () => {
   app.listen(PORT, () => {
     console.log(
       `Server is running on port http://localhost:${PORT}. \n\n -----------------Console.log()--------------------------`
-
-      );
+    );
   });
 };
 
