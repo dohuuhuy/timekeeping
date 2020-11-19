@@ -8,13 +8,12 @@ const geolib = require("geolib");
 exports.demo1 = (req, res) => {
   console.log(("helo ", req.body));
 
-  res.send(req.body)
+  res.send(req.body);
 };
 exports.demo2 = (req, res) => {
   console.log(("helo222222 ", req.body));
-  res.send(req.body)
+  res.send(req.body);
 };
-
 
 Check_INPUT = async (req) => {
   var data = req.body;
@@ -271,7 +270,8 @@ exports.history_Checks_By_Date = async (req, res) => {
 };
 
 exports.lastCheck = async (req, res) => {
-  const dta = await Checks.findOne({ userId: req.params.checkId }).sort({
+  console.log("res.locals.userId  :>> ", res.locals.userId);
+  const dta = await Checks.findOne({ userId: res.locals.userId }).sort({
     time: -1,
   });
 
