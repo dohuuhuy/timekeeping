@@ -251,7 +251,7 @@ exports.findAll = (req, res) => {
 exports.history_Checks_By_Date = async (req, res) => {
   let fromDate = req.body.fromDate;
   let toDate = req.body.toDate;
-  let userId = req.body.userId;
+  let userId = res.locals.userId;
   let partnerId = req.body.partnerId;
 
   var date = new Date(toDate);
