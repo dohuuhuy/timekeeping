@@ -24,11 +24,11 @@ exports.post_Login = async (req, res) => {
 };
 
 exports.check_token_login = async (req, res, next) => {
-  console.log("req.headers", req.headers);
+  //sconsole.log("req.headers", req.headers);
   const options = {
     headers: {
       accept: "/",
-     // partnerid: "trungvuong",
+      // partnerid: "trungvuong",
       Authorization: `${req.headers.authorization}`,
     },
   };
@@ -37,10 +37,10 @@ exports.check_token_login = async (req, res, next) => {
 
     var x = await axios.get(url, options);
     console.log("x.data", x.data.userId);
-    res.locals.userId = x.data.userId;
+    res.locals.userId = x.data.userMongoId;
     return next();
   } catch (error) {
     console.log(error);
-    res.status(401).json({statusCode:401, message: "No author user" });
+    res.status(401).json({ statusCode: 401, message: "No author user" });
   }
 };
