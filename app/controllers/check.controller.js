@@ -265,7 +265,7 @@ exports.history_Checks_By_Date = async (req, res) => {
       $gte: new Date(fromDate),
       $lte: date,
     },
-  });
+  }).sort({time:-1});
 
   res.send(rs);
 };
