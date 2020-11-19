@@ -15,8 +15,9 @@ exports.demo2 = (req, res) => {
   res.send(req.body);
 };
 
-Check_INPUT = async (req) => {
-  var data = req.body;
+Check_INPUT = async (req,obj) => {
+  var data = obj;
+  console.log('data :>> ', data);
 
   _ip = req.connection.remoteAddress;
 
@@ -27,6 +28,7 @@ Check_INPUT = async (req) => {
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
 
   var userId = data.userId;
+  console.log('userId :>> ', userId);
   var action = data.action;
 
   var countUserId = await Checks.countDocuments({ userId });
@@ -45,7 +47,6 @@ Check_INPUT = async (req) => {
     // console.log("--> đã có user");
     if (checklastchecks == "Ok-check") {
       console.log("--> check action");
-
       console.log("checkCondition.success :>> ", checkCondition);
       if (checkCondition.success === false) {
         return checkCondition.type;
@@ -181,7 +182,7 @@ exports.create = async (req, res) => {
   console.log("obj :>> ", obj);
   const check = new Checks(obj);
 
-  var ck = await Check_INPUT(req);
+  var ck = await Check_INPUT(req,obj);
   var errArr = "";
   var action = req.body.action;
 
