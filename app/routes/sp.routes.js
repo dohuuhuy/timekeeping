@@ -4,7 +4,7 @@ const support = require("../controllers/support_record.controller");
 
 router.post("/sp_record", support.create);
 
-router.get("/sp_record", support.findAll);
+router.get("/get_list_sp_record", support.findAll);
 
 router.get("/sp_record/:sp_recordId", support.findOne);
 
@@ -27,3 +27,5 @@ router.delete("/createAccount/:id", user_account.delete);
 // router.delete("/delUserAcc/:id", user_account.deleteID);
 
 module.exports = router;
+
+//  /api/account/get_list_sp_record

@@ -11,8 +11,8 @@ DiffInMinutes = (createdAt) => {
   return diffInMinutes;
 };
 
-checkUserIsNew = async (req, res) => {
-  var data = req.body;
+checkUserIsNew = async (req, res, obj) => {
+  var data = obj;
   if (data.bookingCode) {
     var bookingCode = data.bookingCode;
     try {
@@ -122,7 +122,7 @@ exports.create = async (req, res) => {
 
   console.log(":>>>>>", obj);
 
-  var _checkUserIsNew = await checkUserIsNew(req, res);
+  var _checkUserIsNew = await checkUserIsNew(req, res, obj);
   console.log("object", _checkUserIsNew);
 
   if (_checkUserIsNew.success === false) {
@@ -148,8 +148,17 @@ exports.create = async (req, res) => {
 };
 
 exports.findAll = (req, res) => {
-  Support_record.find({}).then((data) => {
-    res.send(data);
+  Support_record.find({ supporterId: res.locals.userId }).then((data) => {
+    res.send(data).catch((err) => {
+      if (err.kind === "ObjectId") {
+        return res.status(404).send({
+          message: "Note not found with id " + req.params.sp_recordId,
+        });
+      }
+      return res.status(500).send({
+        message: "Error retrieving note with id " + req.params.sp_recordId,
+      });
+    });
   });
 };
 
