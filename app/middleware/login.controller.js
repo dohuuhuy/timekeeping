@@ -23,11 +23,12 @@ exports.post_Login = async (req, res) => {
 };
 
 exports.check_token_login = async (req, res, next) => {
+  console.log('req.headers',req.headers)
   const options = {
     headers: {
       accept: "/",
       partnerid: "trungvuong",
-      Authorization: `Bearer ${req.headers.token}`,
+      Authorization: `${req.headers.authorization}`,
     },
   };
   try {
@@ -38,7 +39,7 @@ exports.check_token_login = async (req, res, next) => {
     res.locals.userId = x.data.userId;
     return next();
   } catch (error) {
-    console.log("x.data", error);
+    console.log(errors);
     res.status(401).json({ message: "No author user" });
   }
 };
