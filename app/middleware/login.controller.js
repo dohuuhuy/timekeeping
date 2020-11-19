@@ -39,7 +39,7 @@ exports.check_token_login = async (req, res, next) => {
     res.locals.userId = x.data.userId;
     return next();
   } catch (error) {
-    console.log(errors);
+    console.log(error);
     res.status(401).json({ message: "No author user" });
   }
 };
