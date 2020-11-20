@@ -1,6 +1,6 @@
 const MongoClient = require("mongodb").MongoClient;
 const ObjectID = require("mongodb").ObjectID;
-const dbname = "report";
+const dbname = "medpro";
 const dbConfig = require("../../config/database.config");
 
 const mongoOptions = { useNewUrlParser: true, useUnifiedTopology: true };

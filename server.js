@@ -12,7 +12,6 @@ const sp = require("./app/routes/sp.routes");
 const login = require("./app/routes/login.route");
 const { check_token_login } = require("./app/middleware/login.controller");
 
-
 const PORT = process.env.PORT || 80;
 
 mongoose.Promise = global.Promise;
@@ -24,12 +23,16 @@ var opt_mongo = {
 };
 
 start_server = async () => {
-  await db.connect();
-  await mongoose.connect(dbConfig.url, opt_mongo);
+  try {
+    await db.connect();
+    await mongoose.connect(dbConfig.url, opt_mongo);
+  } catch (error) {
+    console.log("Loi db");
+  }
 
   app.use("/worktime", check_token_login, worktime);
   app.use("/api", login);
-  app.use("/api/account",check_token_login, sp);
+  app.use("/api/account", check_token_login, sp);
 
   app.get("/", function (req, res) {
     res.json({ greeting: "Worktime wellcome" });

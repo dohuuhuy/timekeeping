@@ -13,6 +13,9 @@ DiffInMinutes = (createdAt) => {
 
 checkUserIsNew = async (req, res, obj) => {
   var data = obj;
+
+  console.log("data: >>> ", data);
+
   if (data.bookingCode) {
     var bookingCode = data.bookingCode;
     try {
@@ -21,6 +24,7 @@ checkUserIsNew = async (req, res, obj) => {
         .collection("bookings")
         .find({ bookingCode: bookingCode })
         .toArray();
+
       //console.log("Tìm_booking_code :>> ", bookings);
 
       var userId = bookings[0].userId;
@@ -50,7 +54,7 @@ checkUserIsNew = async (req, res, obj) => {
 
   if (data.userCode) {
     var code = data.userCode;
-
+    console.log("code :>> ", code);
     try {
       var patients = await db
         .getDB()
@@ -59,6 +63,7 @@ checkUserIsNew = async (req, res, obj) => {
         .toArray();
 
       console.log("patients :>> ", patients);
+
       var userId = patients[0].userId;
       var createdAt = patients[0].createdAt;
 
@@ -120,15 +125,13 @@ exports.create = async (req, res) => {
     verifyDescription: req.body.verifyDescription,
   };
 
-  console.log(":>>>>>", obj);
-
   var _checkUserIsNew = await checkUserIsNew(req, res, obj);
   console.log("object", _checkUserIsNew);
 
   if (_checkUserIsNew.success === false) {
     res.send({
       success: false,
-      message: [_checkUserIsNew.message, "Không phải user mới"],
+      message: "Không phải user mới",
     });
   } else {
     const support_record = new Support_record(obj);
@@ -241,4 +244,10 @@ exports.delete = (req, res) => {
         message: "Could not delete note with id " + req.params.sp_recordId,
       });
     });
+};
+
+exports.demo1 = async (req, res) => {
+  var patients = await db.getDB().collection("patients").find().toArray();
+
+  console.log("patients :>> ", patients);
 };
