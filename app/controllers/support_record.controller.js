@@ -139,7 +139,7 @@ exports.create = async (req, res) => {
     support_record
       .save()
       .then((data) => {
-        res.send({ success: true, message: "Thêm thành công !", data: data });
+        res.send({ success: true, message: "Thêm thành công !"});
       })
       .catch((err) => {
         res.status(500).send({
