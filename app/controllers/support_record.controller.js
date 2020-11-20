@@ -62,7 +62,7 @@ checkUserIsNew = async (req, res, obj) => {
         .find({ code: code })
         .toArray();
 
-      console.log("patients :>> ", patients);
+      // console.log("patients :>> ", patients);
 
       var userId = patients[0].userId;
       var createdAt = patients[0].createdAt;
@@ -73,7 +73,7 @@ checkUserIsNew = async (req, res, obj) => {
         .find({ _id: userId })
         .toArray();
 
-      console.log("Tìm_users :>> ", users);
+      // console.log("Tìm_users :>> ", users);
       var userId = users[0]._id.toString();
       // console.log('userId :>> ', userId);
       var listBookings = await db
@@ -113,9 +113,35 @@ checkUserIsNew = async (req, res, obj) => {
   }
 };
 
+check_for_existence = async (obj) => {
+  if (obj.userCode) {
+    console.log(1);
+    try {
+      var x = await db
+        .getDB()
+        .collection("support_record")
+        .findOne({ userCode: obj.userCode });
+      return x ? true : false;
+    } catch (error) {
+      return false;
+    }
+  }
+  if (obj.bookingCode) {
+    console.log(2);
+    try {
+      var x = await db
+        .getDB()
+        .collection("support_record")
+        .findOne({ bookingCode: obj.bookingCode });
+      return x ? true : false;
+    } catch (error) {
+      return false;
+    }
+  }
+};
+
 exports.create = async (req, res) => {
   var date = new Date();
-
   const obj = {
     supporterId: res.locals.userId,
     userCode: req.body.userCode,
@@ -124,29 +150,37 @@ exports.create = async (req, res) => {
     verifyStatus: 0,
     verifyDescription: req.body.verifyDescription,
   };
-
-  var _checkUserIsNew = await checkUserIsNew(req, res, obj);
-  console.log("object", _checkUserIsNew);
-
-  if (_checkUserIsNew.success === false) {
+  var c = await check_for_existence(obj);
+  console.log("c", c);
+  if (c === true) {
     res.send({
       success: false,
-      message: "Không phải user mới",
+      message: "Phiếu đã được quét",
     });
   } else {
-    const support_record = new Support_record(obj);
+    var _checkUserIsNew = await checkUserIsNew(req, res, obj);
+    console.log("object", _checkUserIsNew);
 
-    support_record
-      .save()
-      .then((data) => {
-        res.send({ success: true, message: "Thêm thành công !"});
-      })
-      .catch((err) => {
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while creating the Note.",
-        });
+    if (_checkUserIsNew.success === false) {
+      res.send({
+        success: false,
+        message: "Không phải user mới",
       });
+    } else {
+      const support_record = new Support_record(obj);
+
+      support_record
+        .save()
+        .then((data) => {
+          res.send({ success: true, message: "Thêm thành công !" });
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message:
+              err.message || "Some error occurred while creating the Note.",
+          });
+        });
+    }
   }
 };
 
@@ -249,5 +283,5 @@ exports.delete = (req, res) => {
 exports.demo1 = async (req, res) => {
   var patients = await db.getDB().collection("patients").find().toArray();
 
-  console.log("patients :>> ", patients);
+  // console.log("patients :>> ", patients);
 };
