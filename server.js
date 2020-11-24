@@ -32,7 +32,7 @@ start_server = async () => {
 
   app.use("/worktime", check_token_login, worktime);
   app.use("/api", login);
-  app.use("/api/account", sp);
+  app.use("/api/account", check_token_login, sp);
 
   app.get("/", function (req, res) {
     res.json({ greeting: "Time_keeping wellcome" });
