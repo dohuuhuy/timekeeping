@@ -5,19 +5,9 @@ const Location = require("../models/location.model.js");
 const moment = require("moment");
 const geolib = require("geolib");
 
-exports.demo1 = (req, res) => {
-  console.log(("helo ", req.body));
-
-  res.send(req.body);
-};
-exports.demo2 = (req, res) => {
-  console.log(("helo222222 ", req.body));
-  res.send(req.body);
-};
-
-Check_INPUT = async (req,obj) => {
+Check_INPUT = async (req, obj) => {
   var data = obj;
-  console.log('data :>> ', data);
+  console.log("data :>> ", data);
 
   _ip = req.connection.remoteAddress;
 
@@ -28,7 +18,7 @@ Check_INPUT = async (req,obj) => {
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
 
   var userId = data.userId;
-  console.log('userId :>> ', userId);
+  console.log("userId :>> ", userId);
   var action = data.action;
 
   var countUserId = await Checks.countDocuments({ userId });
@@ -182,7 +172,7 @@ exports.create = async (req, res) => {
   console.log("obj :>> ", obj);
   const check = new Checks(obj);
 
-  var ck = await Check_INPUT(req,obj);
+  var ck = await Check_INPUT(req, obj);
   var errArr = "";
   var action = req.body.action;
 
@@ -265,7 +255,7 @@ exports.history_Checks_By_Date = async (req, res) => {
       $gte: new Date(fromDate),
       $lte: date,
     },
-  }).sort({time:-1});
+  }).sort({ time: -1 });
 
   res.send(rs);
 };
@@ -299,83 +289,4 @@ exports.lastCheck = async (req, res) => {
   } else {
     return res.send({ success: false, message: "không có data !" });
   }
-};
-exports.update = (req, res) => {
-  if (!req.body) {
-    return res.status(400).send({
-      message: "Data to update can not be empty!",
-    });
-  }
-
-  const id = req.params.checkId;
-
-  Checks.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
-    .then((data) => {
-      if (!data) {
-        res.status(404).send({
-          message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found!`,
-        });
-      } else res.send({ message: "Tutorial was updated successfully." });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error updating Tutorial with id=" + id,
-      });
-    });
-};
-exports.delete = (req, res) => {
-  const id = req.params.checkId;
-
-  Checks.findOneAndRemove({ userId: id })
-    .then((data) => {
-      if (!data) {
-        res.status(404).send({
-          message: `Cannot delete with id=${id}. Maybe  was not found!`,
-        });
-      } else {
-        res.send({
-          message: " was deleted successfully!",
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete with id=" + id,
-      });
-    });
-};
-exports.deleteID = (req, res) => {
-  const id = req.params.checkId;
-
-  Checks.findByIdAndRemove(id)
-    .then((data) => {
-      if (!data) {
-        res.status(404).send({
-          message: `Cannot delete with id=${id}. Maybe  was not found!`,
-        });
-      } else {
-        res.send({
-          message: " was deleted successfully!",
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete with id=" + id,
-      });
-    });
-};
-exports.deleteAll = (req, res) => {
-  Checks.deleteMany({})
-    .then((data) => {
-      res.send({
-        message: `${data.deletedCount} Tutorials were deleted successfully!`,
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while removing all tutorials.",
-      });
-    });
 };

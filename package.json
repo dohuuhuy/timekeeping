@@ -22,7 +22,7 @@
     "mongodb": "^3.6.2",
     "mongoose": "^5.10.9",
     "node-excel-export": "^1.4.4",
-    "nodemon": "^2.0.6",
+    "nodemon": "2.0.6",
     "redis": "^3.0.2",
     "request-ip": "^2.1.3"
   }
