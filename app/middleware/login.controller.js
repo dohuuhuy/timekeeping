@@ -35,6 +35,6 @@ exports.check_token_login = async (req, res, next) => {
     res.locals.userId = x.data.userMongoId;
     return next();
   } catch (error) {
-    res.status(401).send({ statusCode: 401, message: "No author user", error });
+    res.status(401).send({ statusCode: 401, message: "No author user" });
   }
 };

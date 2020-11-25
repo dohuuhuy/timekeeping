@@ -27,14 +27,14 @@ Check_INPUT = async (req, data) => {
     if (checkCondition.success === false) {
       return checkCondition;
     } else {
-      return { success: true, ms: "Ok-check" };
+      return { success: true, message: "Ok-check" };
     }
   } else {
     if (checklastchecks.status == 1) {
       if (checkCondition.success === false) {
         return checkCondition;
       } else {
-        return { success: true, ms: "Ok-check" };
+        return { success: true, message: "Ok-check" };
       }
     }
     if (checklastchecks.status == 2) {
@@ -42,15 +42,15 @@ Check_INPUT = async (req, data) => {
         if (checkCondition.success === false) {
           return checkCondition;
         } else {
-          return { success: true, ms: "Ok-check" };
+          return { success: true, message: "Ok-check" };
         }
       } else {
-        return { success: false, ms: "Bạn phải checkIn vào ngày mới" };
+        return { success: false, message: "Bạn phải checkIn vào ngày mới" };
       }
     } else {
       return {
         success: false,
-        ms: `Bạn phải ${!action ? "checkOut" : "checkIn"}`,
+        message: `Bạn phải ${!action ? "checkOut" : "checkIn"}`,
       };
     }
   }
@@ -105,7 +105,9 @@ CheckCondition = async (locationId, data, ip) => {
 };
 
 CheckLastchecksID = async (userId, action) => {
-  const dta = await Checks.findOne({ userId: userId }).sort({ time: -1 });
+  const dta = await Checks.findOne({ userId: userId }).sort({
+    checkInTime: -1,
+  });
   // console.log("CheckLastchecksID :>> ", dta.time);
 
   if (dta) {
@@ -113,13 +115,13 @@ CheckLastchecksID = async (userId, action) => {
     var curDate = moment(dta.time).format("l"); //  10/21/2020
 
     if (lastDate != curDate) {
-      return { status: 2, ms: "Skip-check" };
+      return { status: 2, message: "Skip-check" };
     }
     var actionLast = dta.action;
     if (action != actionLast) {
-      return { status: 1, ms: "Ok-check" };
+      return { status: 1, message: "Ok-check" };
     } else {
-      return { status: 0, ms: "No-check" };
+      return { status: 0, message: "No-check" };
     }
   }
 };
@@ -132,8 +134,8 @@ exports.create = async (req, res) => {
   const workship = await Workship.findOne({ workshipId });
 
   const obj = {
-    //  userId: res.locals.userId,
-    userId: req.body.userId,
+    userId: res.locals.userId,
+    //userId: req.body.userId,
     locationId: req.body.locationId,
     locationDetail: location,
     workshipId: req.body.workshipId,
@@ -149,43 +151,42 @@ exports.create = async (req, res) => {
   const check = new Checks(obj);
 
   var ck = await Check_INPUT(req, obj);
-  var errArr = "";
   var action = req.body.action;
 
   console.log("ck", ck);
 
   if (ck.success == false) {
     res.send(ck);
-  }
+  } else {
+    if (req.body.action == 1) {
+      x = await Checks.findOne({ userId: res.locals.userId, action: 0 }).sort({
+        checkInTime: -1,
+      });
+      console.log("x", x);
+      var _id = x._id;
+      var date = new Date();
+      console.log(date);
+      var y = await Checks.findByIdAndUpdate(_id, {
+        $set: { checkOutTime: date.toISOString(), action: 1 },
+      });
 
-  switch (ck) {
-    case "Ok-check":
-      if (req.body.action == 1) {
-        x = await Checks.findOne({ userId: req.body.userId, action: 0 }).sort({
-          time: -1,
-        });
-        console.log("x", x);
-        var _id = x._id;
-        var date = new Date();
-        console.log(date);
-        var y = await Checks.findByIdAndUpdate(
-          _id,
-          {
-            $set: { checkOutTime: date.toISOString() },
-          },
-          { useFindAndModify: true }
-        );
-        console.log("y", y);
-        var x = await check.save();
-        return x ? res.send({ success: true, message: "Thành công" }) : null;
-      } else {
-        var x = await check.save();
-        return x ? res.send({ success: true, message: "Thành công" }) : null;
-      }
-
-    default:
-      errArr = { message: "Không tìm thấy" };
-      break;
+      // console.log("y", y);
+      // var x = await check.save();
+      return y
+        ? res.send({
+            success: true,
+            message: `${action == 0 ? "Check Out" : "Check In"} thành công`,
+          })
+        : null;
+    } else {
+      var x = await check.save();
+      return x
+        ? res.send({
+            success: true,
+            message: `${action == 0 ? "Check Out" : "Check In"} thành công`,
+          })
+        : null;
+    }
   }
 };
 
@@ -206,8 +207,8 @@ exports.findAll = (req, res) => {
 exports.history_Checks_By_Date = async (req, res) => {
   let fromDate = req.body.fromDate;
   let toDate = req.body.toDate;
-  // let userId = res.locals.userId;
-  let userId = req.body.userId;
+  let userId = res.locals.userId;
+  //let userId = req.body.userId;
   let partnerId = req.body.partnerId;
 
   var date = new Date(toDate);
@@ -216,20 +217,20 @@ exports.history_Checks_By_Date = async (req, res) => {
   var rs = await Checks.find({
     userId,
     partnerId,
-    time: {
+    checkInTime: {
       $gte: new Date(fromDate),
       $lte: date,
     },
-    action: 0,
-  }).sort({ time: -1 });
+  }).sort({ checkInTime: -1 });
 
+  // console.log("rs", rs);
   res.send(rs);
 };
 
 exports.lastCheck = async (req, res) => {
   console.log("res.locals.userId  :>> ", res.locals.userId);
   const dta = await Checks.findOne({ userId: res.locals.userId }).sort({
-    time: -1,
+    checkInTime: -1,
   });
 
   console.log("dta :>> ", dta);
