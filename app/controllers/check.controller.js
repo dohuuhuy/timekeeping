@@ -4,11 +4,9 @@ const Location = require("../models/location.model.js");
 
 const moment = require("moment");
 const geolib = require("geolib");
+const { update } = require("../models/checktime.model.js");
 
-Check_INPUT = async (req, obj) => {
-  var data = obj;
-  console.log("data :>> ", data);
-
+Check_INPUT = async (req, data) => {
   _ip = req.connection.remoteAddress;
 
   var ip = _ip.substring(7);
@@ -25,39 +23,35 @@ Check_INPUT = async (req, obj) => {
   var checklastchecks = await CheckLastchecksID(userId, action);
   var checkCondition = await CheckCondition(data.locationId, data, ip);
 
-  if (countUserId <= 0) {
-    console.log("--> chưa có user");
-    console.log("checkCondition.success :>> ", checkCondition);
+  if (countUserId < 1) {
     if (checkCondition.success === false) {
-      return checkCondition.type;
+      return checkCondition;
     } else {
-      return "Ok-check";
+      return { success: true, ms: "Ok-check" };
     }
   } else {
-    // console.log("--> đã có user");
-    if (checklastchecks == "Ok-check") {
-      console.log("--> check action");
-      console.log("checkCondition.success :>> ", checkCondition);
+    if (checklastchecks.status == 1) {
       if (checkCondition.success === false) {
-        return checkCondition.type;
+        return checkCondition;
       } else {
-        return "Ok-check";
+        return { success: true, ms: "Ok-check" };
       }
     }
-    if (checklastchecks == "Skip-check") {
+    if (checklastchecks.status == 2) {
       if (action == 0) {
         if (checkCondition.success === false) {
-          return checkCondition.type;
+          return checkCondition;
         } else {
-          return "Ok-check";
+          return { success: true, ms: "Ok-check" };
         }
       } else {
-        console.log("--> Bạn phải checkIn vao ngày mới");
-        return "New-check";
+        return { success: false, ms: "Bạn phải checkIn vào ngày mới" };
       }
     } else {
-      console.log("|--> Bạn phải", !action ? "checkOut" : "checkIn");
-      return "Find-check";
+      return {
+        success: false,
+        ms: `Bạn phải ${!action ? "checkOut" : "checkIn"}`,
+      };
     }
   }
 };
@@ -67,31 +61,22 @@ CheckCondition = async (locationId, data, ip) => {
   // console.log("dta :>> ", dta);
 
   if (!dta) {
-    return { success: false, type: "No-locationID" };
+    return { success: false, type: "Không tìm thấy locationID" };
   } else {
     if (!dta.condition.length) {
       console.log("khong co conditons");
-      return { success: false, type: "No-condition" }; // khong co conditions
+      return { success: false, type: "Không có điều kiện kiểm tra " }; // khong co conditions
     }
 
     for (var value of dta.condition) {
-      console.log("value type :>> ", value.type);
-
       switch (value.type) {
         case "IP":
           //  ip = "103.199.41.191";
-          console.log("- IP :>> " + ip);
-
-          console.log(
-            "value.details.includes(ip) :>> ",
-            value.details.includes(ip)
-          );
           if (value.details.includes(ip)) {
             return { success: true };
           }
 
         case "GPS":
-          console.log("- GPS");
           var lat = dta.latitude;
           var long = dta.longitude;
           var khoangCach = geolib.getDistance(
@@ -104,11 +89,9 @@ CheckCondition = async (locationId, data, ip) => {
               longitude: long,
             }
           );
-          console.log("khoangCach :>> ", khoangCach);
 
           var condition = value.details;
           if (khoangCach <= condition) {
-            console.log("GPS loi :>> ");
             return { success: true };
           }
 
@@ -122,30 +105,21 @@ CheckCondition = async (locationId, data, ip) => {
 };
 
 CheckLastchecksID = async (userId, action) => {
-  const dta = await Checks.findOne({ userId: userId }).sort({ time: -1 }); // lây thằng cuôi cùng
-
-  console.log("CheckLastchecksID :>> ", dta);
+  const dta = await Checks.findOne({ userId: userId }).sort({ time: -1 });
+  // console.log("CheckLastchecksID :>> ", dta.time);
 
   if (dta) {
-    var date = new Date(); // ngay hiện tại
-    var time = dta.time; // ngày trong db
+    var lastDate = moment(new Date()).format("l"); //  10/21/2020
+    var curDate = moment(dta.time).format("l"); //  10/21/2020
 
-    var x = moment(time).format("YYYY-MM-DD HH:mm:ss");
-    var lastDate = moment(time).format("l"); //  10/21/2020
-    var curDate = moment(date).format("l"); //  10/21/2020
-    //console.log("curDate :>> ", curDate);
-    //console.log("lastDate :>> ", x);
-
-    //kiểm tra 2 hành động trong ngày co bị trùng hay không
     if (lastDate != curDate) {
-      return "Skip-check";
+      return { status: 2, ms: "Skip-check" };
     }
     var actionLast = dta.action;
     if (action != actionLast) {
-      //khác hành động
-      return "Ok-check"; //  cho check
+      return { status: 1, ms: "Ok-check" };
     } else {
-      return "No-check"; // k  cho check
+      return { status: 0, ms: "No-check" };
     }
   }
 };
@@ -158,7 +132,8 @@ exports.create = async (req, res) => {
   const workship = await Workship.findOne({ workshipId });
 
   const obj = {
-    userId: res.locals.userId,
+    //  userId: res.locals.userId,
+    userId: req.body.userId,
     locationId: req.body.locationId,
     locationDetail: location,
     workshipId: req.body.workshipId,
@@ -169,60 +144,49 @@ exports.create = async (req, res) => {
     action: req.body.action,
   };
 
-  console.log("obj :>> ", obj);
+  //  console.log("obj :>> ", obj);
+
   const check = new Checks(obj);
 
   var ck = await Check_INPUT(req, obj);
   var errArr = "";
   var action = req.body.action;
 
-  switch (ck) {
-    case "Find-check":
-      errArr = { message: "Bạn phải " + (!action ? "checkOut" : "checkIn") };
-      break;
-    case "New-check":
-      errArr = { message: "Phai checkIn vao ngay moi" };
-      break;
-    case "IP":
-      errArr = {
-        message: "IP không thể xác thực",
-        type: "IP",
-      };
-      break;
+  console.log("ck", ck);
 
-    case "GPS":
-      errArr = {
-        message: "Check ngoài phạm vi cho phép",
-        type: "GPS",
-      };
-      break;
-    case "No-condition":
-      errArr = { message: "Không có conditions" };
-      break;
-    case "No-User":
-      errArr = { message: "Chua co user" };
-      break;
-    case "No-locationID":
-      errArr = { message: "Không tìm thấy locationId" };
-      break;
-    case "Ok-check":
-      return await check
-        .save()
-        .then((data) => {
-          res.send({ success: true, message: "Thành công" });
-        })
-        .catch((err) => {
-          res
-            .status(500)
-            .send({ success: false, message: err.message || "Bị gián đoạn" });
-        });
-    //    return res.send({ message: "Thành công" });
-    default:
-      errArr = { message: "Không tìm thấy " };
-      break;
+  if (ck.success == false) {
+    res.send(ck);
   }
 
-  res.send({ success: false, error: errArr });
+  switch (ck) {
+    case "Ok-check":
+      if (req.body.action == 1) {
+        x = await Checks.findOne({ userId: req.body.userId, action: 0 }).sort({
+          time: -1,
+        });
+        console.log("x", x);
+        var _id = x._id;
+        var date = new Date();
+        console.log(date);
+        var y = await Checks.findByIdAndUpdate(
+          _id,
+          {
+            $set: { checkOutTime: date.toISOString() },
+          },
+          { useFindAndModify: true }
+        );
+        console.log("y", y);
+        var x = await check.save();
+        return x ? res.send({ success: true, message: "Thành công" }) : null;
+      } else {
+        var x = await check.save();
+        return x ? res.send({ success: true, message: "Thành công" }) : null;
+      }
+
+    default:
+      errArr = { message: "Không tìm thấy" };
+      break;
+  }
 };
 
 exports.findAll = (req, res) => {
@@ -242,7 +206,8 @@ exports.findAll = (req, res) => {
 exports.history_Checks_By_Date = async (req, res) => {
   let fromDate = req.body.fromDate;
   let toDate = req.body.toDate;
-  let userId = res.locals.userId;
+  // let userId = res.locals.userId;
+  let userId = req.body.userId;
   let partnerId = req.body.partnerId;
 
   var date = new Date(toDate);
@@ -255,6 +220,7 @@ exports.history_Checks_By_Date = async (req, res) => {
       $gte: new Date(fromDate),
       $lte: date,
     },
+    action: 0,
   }).sort({ time: -1 });
 
   res.send(rs);

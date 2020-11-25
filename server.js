@@ -30,7 +30,7 @@ start_server = async () => {
     console.log("Loi db");
   }
 
-  app.use("/worktime", check_token_login, worktime);
+  app.use("/worktime", worktime);
   app.use("/api", login);
   app.use("/api/account", check_token_login, sp);
 

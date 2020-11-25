@@ -9,14 +9,15 @@ const CheckSchema = mongoose.Schema({
   userId: String,
   latitude: String,
   longitude: String,
-  action: Number,
+  action: Number, // 1 checkin, 0 checkout
   wifiDetail: Object,
   time: {
     type: Date,
     default: Date.now,
   },
-  token: {
+  checkOutTime: {
     type: String,
+    default: null,
   },
 });
 
