@@ -11,7 +11,7 @@ const CheckSchema = mongoose.Schema({
   longitude: String,
   action: Number, // 1 checkin, 0 checkout
   wifiDetail: Object,
-  checkInTime: {
+  time: {
     type: Date,
     default: Date.now,
   },

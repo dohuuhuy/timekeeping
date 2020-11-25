@@ -106,7 +106,7 @@ CheckCondition = async (locationId, data, ip) => {
 
 CheckLastchecksID = async (userId, action) => {
   const dta = await Checks.findOne({ userId: userId }).sort({
-    checkInTime: -1,
+    time: -1,
   });
   // console.log("CheckLastchecksID :>> ", dta.time);
 
@@ -160,7 +160,7 @@ exports.create = async (req, res) => {
   } else {
     if (req.body.action == 1) {
       x = await Checks.findOne({ userId: res.locals.userId, action: 0 }).sort({
-        checkInTime: -1,
+        time: -1,
       });
       console.log("x", x);
       var _id = x._id;
@@ -217,11 +217,11 @@ exports.history_Checks_By_Date = async (req, res) => {
   var rs = await Checks.find({
     userId,
     partnerId,
-    checkInTime: {
+    time: {
       $gte: new Date(fromDate),
       $lte: date,
     },
-  }).sort({ checkInTime: -1 });
+  }).sort({ time: -1 });
 
   // console.log("rs", rs);
   res.send(rs);
@@ -230,7 +230,7 @@ exports.history_Checks_By_Date = async (req, res) => {
 exports.lastCheck = async (req, res) => {
   console.log("res.locals.userId  :>> ", res.locals.userId);
   const dta = await Checks.findOne({ userId: res.locals.userId }).sort({
-    checkInTime: -1,
+    time: -1,
   });
 
   console.log("dta :>> ", dta);
