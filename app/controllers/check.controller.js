@@ -45,12 +45,15 @@ Check_INPUT = async (req, data) => {
           return { success: true, message: "Ok-check" };
         }
       } else {
-        return { success: false, message: "Bạn phải checkIn vào ngày mới" };
+        return {
+          success: false,
+          message: "Vui lòng check-in để bắt đầu ngày làm việc.",
+        };
       }
     } else {
       return {
         success: false,
-        message: `Bạn phải ${!action ? "checkOut" : "checkIn"}`,
+        message: `Bạn đã ${!action ? "check-out" : "check-in"} hôm nay.`,
       };
     }
   }
@@ -61,11 +64,18 @@ CheckCondition = async (locationId, data, ip) => {
   // console.log("dta :>> ", dta);
 
   if (!dta) {
-    return { success: false, type: "Không tìm thấy locationID" };
+    return {
+      success: false,
+      type:
+        "Cơ sở <Address> chưa được cập nhật hoặc đã.\n Vui lòng chọn cơ sở khác để thực hiện thao tác.",
+    };
   } else {
     if (!dta.condition.length) {
       console.log("khong co conditons");
-      return { success: false, type: "Không có điều kiện kiểm tra " }; // khong co conditions
+      return {
+        success: false,
+        type: "Vui lòng kết nối internet và GPS để thực hiện thao tác.",
+      }; // khong co conditions
     }
 
     for (var value of dta.condition) {
@@ -99,7 +109,13 @@ CheckCondition = async (locationId, data, ip) => {
         default:
           break;
       }
-      return { success: false, type: value.type };
+
+      var x =
+        value.type == "IP"
+          ? "Vui lòng kết nối với wifi (x.x.x.x) để có thể thực hiện thao tác."
+          : "Bạn đang ở ngoài nơi làm việc. Vui lòng đến <Address> để thực hiện thao tác.";
+
+      return { success: false, type: x };
     }
   }
 };
