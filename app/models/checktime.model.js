@@ -9,7 +9,7 @@ const CheckSchema = mongoose.Schema({
   userId: String,
   latitude: String,
   longitude: String,
-  action: Number, // 1 checkin, 0 checkout
+  action: Number, // 0 checkin, 1 checkout
   wifiDetail: Object,
   time: {
     type: Date,

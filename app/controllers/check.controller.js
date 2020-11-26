@@ -159,31 +159,39 @@ exports.create = async (req, res) => {
     res.send(ck);
   } else {
     if (req.body.action == 1) {
-      x = await Checks.findOne({ userId: res.locals.userId, action: 0 }).sort({
-        time: -1,
-      });
-      console.log("x", x);
-      var _id = x._id;
-      var date = new Date();
-      console.log(date);
-      var y = await Checks.findByIdAndUpdate(_id, {
-        $set: { checkOutTime: date.toISOString(), action: 1 },
-      });
+      try {
+        var x = await Checks.findOne({
+          userId: res.locals.userId,
+          action: 0,
+        }).sort({
+          time: -1,
+        });
+        console.log("x", x);
+        var _id = x._id;
+        var date = new Date();
+        console.log(date);
+        var y = await Checks.findByIdAndUpdate(_id, {
+          $set: { checkOutTime: date.toISOString(), action: 1 },
+        });
 
-      // console.log("y", y);
-      // var x = await check.save();
-      return y
-        ? res.send({
-            success: true,
-            message: `${action == 0 ? "Check Out" : "Check In"} thành công`,
-          })
-        : null;
+        return y
+          ? res.send({
+              success: true,
+              message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
+            })
+          : null;
+      } catch (error) {
+        res.send({
+          success: false,
+          message: "Bạn phải check In",
+        });
+      }
     } else {
       var x = await check.save();
       return x
         ? res.send({
             success: true,
-            message: `${action == 0 ? "Check Out" : "Check In"} thành công`,
+            message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
           })
         : null;
     }
