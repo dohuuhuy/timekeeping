@@ -66,8 +66,7 @@ CheckCondition = async (locationId, data, ip) => {
   if (!dta) {
     return {
       success: false,
-      message:
-        "Cơ sở <Address> chưa được cập nhật hoặc đã.\n Vui lòng chọn cơ sở khác để thực hiện thao tác.",
+      message: `Cơ sở ${dta.address} chưa được cập nhật hoặc đã.\n Vui lòng chọn cơ sở khác để thực hiện thao tác.`,
     };
   } else {
     if (!dta.condition.length) {
@@ -112,7 +111,7 @@ CheckCondition = async (locationId, data, ip) => {
 
       var x =
         value.type == "IP"
-          ? "Vui lòng kết nối với wifi để có thể thực hiện thao tác."
+          ? `IP ${ip} không hợp lệ. Vui lòng kết nối lại wifi.`
           : `Bạn đang ở ngoài nơi làm việc. Vui lòng đến ${dta.address} để thực hiện thao tác.`;
 
       return { success: false, message: x, type: value.type };
