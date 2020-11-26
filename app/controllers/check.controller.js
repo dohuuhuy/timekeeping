@@ -61,12 +61,12 @@ Check_INPUT = async (req, data) => {
 
 CheckCondition = async (locationId, data, ip) => {
   var dta = await Location.findOne({ locationId: locationId });
-  // console.log("dta :>> ", dta);
+  console.log("dta :>> ", dta);
 
   if (!dta) {
     return {
       success: false,
-      type:
+      message:
         "Cơ sở <Address> chưa được cập nhật hoặc đã.\n Vui lòng chọn cơ sở khác để thực hiện thao tác.",
     };
   } else {
@@ -74,7 +74,7 @@ CheckCondition = async (locationId, data, ip) => {
       console.log("khong co conditons");
       return {
         success: false,
-        type: "Vui lòng kết nối internet và GPS để thực hiện thao tác.",
+        message: "Vui lòng kết nối internet và GPS để thực hiện thao tác.",
       }; // khong co conditions
     }
 
@@ -112,10 +112,10 @@ CheckCondition = async (locationId, data, ip) => {
 
       var x =
         value.type == "IP"
-          ? "Vui lòng kết nối với wifi (x.x.x.x) để có thể thực hiện thao tác."
-          : "Bạn đang ở ngoài nơi làm việc. Vui lòng đến <Address> để thực hiện thao tác.";
+          ? "Vui lòng kết nối với wifi để có thể thực hiện thao tác."
+          : `Bạn đang ở ngoài nơi làm việc. Vui lòng đến ${dta.address} để thực hiện thao tác.`;
 
-      return { success: false, type: x };
+      return { success: false, message: x };
     }
   }
 };
