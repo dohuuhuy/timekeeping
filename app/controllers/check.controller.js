@@ -115,7 +115,7 @@ CheckCondition = async (locationId, data, ip) => {
           ? "Vui lòng kết nối với wifi để có thể thực hiện thao tác."
           : `Bạn đang ở ngoài nơi làm việc. Vui lòng đến ${dta.address} để thực hiện thao tác.`;
 
-      return { success: false, message: x };
+      return { success: false, message: x, type: value.type };
     }
   }
 };
