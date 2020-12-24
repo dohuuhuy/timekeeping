@@ -47,7 +47,9 @@ currentDay = () => {
 exports.findOne = (req, res) => {
   var id = req.params.workshipId;
   var cdate = currentDay();
-  Workship.find({ partnerId: id, days: RegExp(cdate, "i") })
+  // Workship.find({ partnerId: id, days: RegExp(cdate, "i") })
+  Workship.find({ partnerId: id })
+
     .sort({ shiftId: 1 })
     .then((note) => {
       if (!note) {
