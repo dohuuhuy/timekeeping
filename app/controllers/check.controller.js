@@ -187,20 +187,13 @@ exports.create = async (req, res) => {
   const check = new Checks(obj);
 
   if (workship.isRequireChecking === "CheckInTime") {
-    var ck = await Check_In_Time(req, obj);
-    console.log("ck 1", ck);
-
-    if (ck.success == false) {
-      res.send(ck);
-    } else {
-      var x = await check.save();
-      return x
-        ? res.send({
-            success: true,
-            message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
-          })
-        : null;
-    }
+    var x = await check.save();
+    return x
+      ? res.send({
+          success: true,
+          message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
+        })
+      : null;
   }
 
   if (workship.isRequireChecking === "CheckInAddress") {
