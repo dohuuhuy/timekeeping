@@ -159,6 +159,8 @@ exports.create = async (req, res) => {
     latitude: req.body.latitude,
     longitude: req.body.longitude,
     action: req.body.action,
+    time: req.body.time,
+    checkOutTime: req.body.checkOutTime,
   };
 
   //  console.log("obj :>> ", obj);

@@ -1,0 +1,25 @@
+{
+  "timeType": {
+    "optionTime": [
+      {
+        "sang": {
+          "from": "7",
+          "to": "11"
+        }
+      },
+      {
+        "chieu": {
+          "from": "13:30",
+          "to": "17:30"
+        }
+      },
+      {
+        "toi": {
+          "from": "17:30",
+          "to": "21:30"
+        }
+      }
+    ],
+    "optionSpecific": "null"
+  }
+}
