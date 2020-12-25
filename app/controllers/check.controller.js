@@ -191,7 +191,7 @@ exports.create = async (req, res) => {
     return x
       ? res.send({
           success: true,
-          message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
+          message: `CheckInTime thành công`,
         })
       : null;
   }
@@ -216,7 +216,7 @@ exports.create = async (req, res) => {
           console.log("x", x);
           var _id = x._id;
           var date = new Date();
-          console.log(date);
+          // console.log(date);
           var y = await Checks.findByIdAndUpdate(_id, {
             $set: { checkOutTime: date.toISOString(), action: 1 },
           });
