@@ -1,25 +1,34 @@
-{
-  "timeType": {
+[
+  {
     "optionTime": [
       {
-        "sang": {
-          "from": "7",
-          "to": "11"
+        "sessionName": "Buổi sáng",
+        "time": {
+          "from": "7:00",
+          "to": "11:00"
         }
       },
       {
-        "chieu": {
+        "sessionName": "Buổi chiều",
+        "time": {
           "from": "13:30",
           "to": "17:30"
         }
       },
       {
-        "toi": {
+        "sessionName": "Buổi tối",
+        "time": {
           "from": "17:30",
           "to": "21:30"
         }
       }
-    ],
-    "optionSpecific": "null"
+    ]
+  },
+  {
+    "action": 0,
+    "locationId": "vpPKH-GPS-wifi",
+    "latitude": 10.8410934,
+    "longitude": 106.6340245,
+    "workshipId": "XB"
   }
-}
+]

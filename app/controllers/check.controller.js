@@ -8,15 +8,8 @@ const { update } = require("../models/checktime.model.js");
 
 Check_INPUT = async (req, data) => {
   _ip = req.connection.remoteAddress;
-
   var ip = _ip.substring(7);
-  //console.log("y :>> ", _ip);
-
-  var dateTime = new Date();
-  dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
-
   var userId = data.userId;
-  console.log("userId :>> ", userId);
   var action = data.action;
 
   var countUserId = await Checks.countDocuments({ userId });
@@ -141,12 +134,40 @@ CheckLastchecksID = async (userId, action) => {
   }
 };
 
+Check_In_Time = async (req, data) => {
+  var userId = data.userId;
+  var action = data.action;
+
+  var checklastchecks = await CheckLastchecksID(userId, action);
+
+  if (checklastchecks.status == 1) {
+    return { success: true, message: "Ok-check" };
+  }
+  if (checklastchecks.status == 2) {
+    if (action == 0) {
+      return { success: true, message: "Ok-check" };
+    } else {
+      return {
+        success: false,
+        message: "Vui lòng check-in để bắt đầu ngày làm việc.",
+      };
+    }
+  } else {
+    return {
+      success: false,
+      message: `Bạn đã ${!action ? "check-out" : "check-in"} hôm nay.`,
+    };
+  }
+};
+
 exports.create = async (req, res) => {
   const locationId = req.body.locationId;
   const workshipId = req.body.workshipId;
 
   const location = await Location.findOne({ locationId });
   const workship = await Workship.findOne({ workshipId });
+
+  const _curdate = new Date();
 
   const obj = {
     userId: res.locals.userId,
@@ -159,58 +180,118 @@ exports.create = async (req, res) => {
     latitude: req.body.latitude,
     longitude: req.body.longitude,
     action: req.body.action,
-    time: req.body.time,
-    checkOutTime: req.body.checkOutTime,
+    time: req.body.time || _curdate,
+    checkOutTime: req.body.checkOutTime || _curdate,
   };
-
-  //  console.log("obj :>> ", obj);
 
   const check = new Checks(obj);
 
-  var ck = await Check_INPUT(req, obj);
-  var action = req.body.action;
+  if (workship.isRequireChecking === "CheckInTime") {
+    var ck = await Check_In_Time(req, obj);
+    console.log("ck 1", ck);
 
-  console.log("ck", ck);
+    if (ck.success == false) {
+      res.send(ck);
+    } else {
+      if (workship.timeType === "null") {
+        if (obj.action == 1) {
+          try {
+            var x = await Checks.findOne({
+              userId: obj.userId,
+              action: 0,
+            }).sort({
+              time: -1,
+            });
 
-  if (ck.success == false) {
-    res.send(ck);
-  } else {
-    if (req.body.action == 1) {
-      try {
-        var x = await Checks.findOne({
-          userId: res.locals.userId,
-          action: 0,
-        }).sort({
-          time: -1,
-        });
-        console.log("x", x);
-        var _id = x._id;
-        var date = new Date();
-        console.log(date);
-        var y = await Checks.findByIdAndUpdate(_id, {
-          $set: { checkOutTime: date.toISOString(), action: 1 },
-        });
+            var _id = x._id;
+            var curdate = new Date();
+            console.log(date);
+            var y = await Checks.findByIdAndUpdate(_id, {
+              $set: { checkOutTime: date.toISOString(), action: 1 },
+            });
 
-        return y
+            return y
+              ? res.send({
+                  success: true,
+                  message: `${
+                    action == 0 ? "Check In" : "Check Out"
+                  } thành công`,
+                })
+              : null;
+          } catch (error) {
+            res.send({
+              success: false,
+              message: "Bạn phải check In",
+            });
+          }
+        } else {
+          var x = await check.save();
+          return x
+            ? res.send({
+                success: true,
+                message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
+              })
+            : null;
+        }
+      }
+      if (workship.timeType === "flex") {
+        var x = await check.save();
+        return x
           ? res.send({
               success: true,
               message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
             })
           : null;
-      } catch (error) {
-        res.send({
-          success: false,
-          message: "Bạn phải check In",
-        });
       }
+    }
+  }
+
+  if (workship.isRequireChecking === "CheckInAddress") {
+    var ck = await Check_INPUT(req, obj);
+    var action = req.body.action;
+
+    console.log("ck", ck);
+
+    if (ck.success == false) {
+      res.send(ck);
     } else {
-      var x = await check.save();
-      return x
-        ? res.send({
-            success: true,
-            message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
-          })
-        : null;
+      if (req.body.action == 1) {
+        try {
+          var x = await Checks.findOne({
+            userId: res.locals.userId,
+            action: 0,
+          }).sort({
+            time: -1,
+          });
+          console.log("x", x);
+          var _id = x._id;
+          var date = new Date();
+          console.log(date);
+          var y = await Checks.findByIdAndUpdate(_id, {
+            $set: { checkOutTime: date.toISOString(), action: 1 },
+          });
+
+          return y
+            ? res.send({
+                success: true,
+                message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
+              })
+            : null;
+        } catch (error) {
+          res.send({
+            success: false,
+            message: "Bạn phải check In",
+          });
+        }
+      } else {
+        var x = await check.save();
+        return x
+          ? res.send({
+              success: true,
+              message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
+            })
+          : null;
+      }
     }
   }
 };

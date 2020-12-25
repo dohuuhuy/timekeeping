@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const workshipSchema = mongoose.Schema({
   partnerId: String,
@@ -13,6 +13,8 @@ const workshipSchema = mongoose.Schema({
   days: String,
   type: String,
   status: Number,
+  isRequireChecking: String,
+  timeType: String,
   createTime: {
     type: Date,
     default: Date.now,
