@@ -1,333 +1,225 @@
 const Checks = require("../models/checktime.model.js");
 const Workship = require("../models/workship.model");
 const Location = require("../models/location.model.js");
-
 const moment = require("moment");
 const geolib = require("geolib");
-const { update } = require("../models/checktime.model.js");
+const _curdate = new Date();
+const message = "";
 
-Check_INPUT = async (req, data) => {
-  _ip = req.connection.remoteAddress;
-  var ip = _ip.substring(7);
-  var userId = data.userId;
-  var action = data.action;
+const Check_INPUT = async (ip, obj) => {
+  const { userId, action } = obj;
+  const { status, message: message_last } = await CheckLastchecksID(userId, action);
+  const { success: success_checkCondition } = await CheckCondition(obj, ip);
 
-  var countUserId = await Checks.countDocuments({ userId });
-  var checklastchecks = await CheckLastchecksID(userId, action);
-  var checkCondition = await CheckCondition(data.locationId, data, ip);
-
-  if (countUserId < 1) {
-    if (checkCondition.success === false) {
-      return checkCondition;
-    } else {
-      return { success: true, message: "Ok-check" };
-    }
-  } else {
-    if (checklastchecks.status == 1) {
-      if (checkCondition.success === false) {
-        return checkCondition;
-      } else {
-        return { success: true, message: "Ok-check" };
-      }
-    }
-    if (checklastchecks.status == 2) {
-      if (action == 0) {
-        if (checkCondition.success === false) {
-          return checkCondition;
-        } else {
-          return { success: true, message: "Ok-check" };
-        }
-      } else {
-        return {
-          success: false,
-          message: "Vui lòng check-in để bắt đầu ngày làm việc.",
-        };
-      }
-    } else {
+  switch (status) {
+    case 0: // lastcheck check action
       return {
         success: false,
         message: `Bạn đã ${!action ? "check-out" : "check-in"} hôm nay.`,
       };
-    }
+    case 1: // lastcheck pass
+      return success_checkCondition === false
+        ? checkCondition
+        : { success: true, message: message_last };
+    case 2: // lastcheck require checkin new day
+      return action == 0
+        ? success_checkCondition === false // check conditions {location, ip }
+          ? checkCondition
+          : { success: true, message: message_last }
+        : {
+            success: false,
+            message: "Vui lòng check-in để bắt đầu ngày làm việc.",
+          };
+    case 3: // lastcheck not data
+      return { success: false, message: message_last };
   }
 };
 
-CheckCondition = async (locationId, data, ip) => {
-  var dta = await Location.findOne({ locationId: locationId });
-  console.log("dta :>> ", dta);
+const CheckCondition = async (
+  { locationId, latitude: laObj, longitude: loObj },
+  ip
+) => {
+  const dta = await Location.findOne({ locationId });
 
   if (!dta) {
     return {
       success: false,
       message: `Cơ sở ${dta.address} chưa được cập nhật hoặc đã.\n Vui lòng chọn cơ sở khác để thực hiện thao tác.`,
     };
-  } else {
-    if (!dta.condition.length) {
-      console.log("khong co conditons");
-      return {
-        success: false,
-        message: "Vui lòng kết nối internet và GPS để thực hiện thao tác.",
-      }; // khong co conditions
-    }
-
-    for (var value of dta.condition) {
-      switch (value.type) {
-        case "IP":
-          //  ip = "103.199.41.191";
-          if (value.details.includes(ip)) {
-            return { success: true };
-          }
-
-        case "GPS":
-          var lat = dta.latitude;
-          var long = dta.longitude;
-          var khoangCach = geolib.getDistance(
-            {
-              latitude: data.latitude,
-              longitude: data.longitude,
-            },
-            {
-              latitude: lat,
-              longitude: long,
-            }
-          );
-
-          var condition = value.details;
-          if (khoangCach <= condition) {
-            return { success: true };
-          }
-
-          break;
-        default:
-          break;
-      }
-
-      var x =
-        value.type == "IP"
-          ? `IP ${ip} không hợp lệ. Vui lòng kết nối lại wifi.`
-          : `Bạn đang ở ngoài nơi làm việc. Vui lòng đến ${dta.address} để thực hiện thao tác.`;
-
-      return { success: false, message: x, type: value.type };
-    }
   }
-};
 
-CheckLastchecksID = async (userId, action) => {
-  const dta = await Checks.findOne({ userId: userId }).sort({
-    time: -1,
-  });
-  // console.log("CheckLastchecksID :>> ", dta.time);
+  const { condition, latitude: laDta, longitude: loDta, address } = dta;
 
-  if (dta) {
-    var lastDate = moment(new Date()).format("l"); //  10/21/2020
-    var curDate = moment(dta.time).format("l"); //  10/21/2020
-
-    if (lastDate != curDate) {
-      return { status: 2, message: "Skip-check" };
-    }
-    var actionLast = dta.action;
-    if (action != actionLast) {
-      return { status: 1, message: "Ok-check" };
-    } else {
-      return { status: 0, message: "No-check" };
-    }
-  }
-};
-
-Check_In_Time = async (req, data) => {
-  var userId = data.userId;
-  var action = data.action;
-
-  var checklastchecks = await CheckLastchecksID(userId, action);
-
-  if (checklastchecks.status == 1) {
-    return { success: true, message: "Ok-check" };
-  }
-  if (checklastchecks.status == 2) {
-    if (action == 0) {
-      return { success: true, message: "Ok-check" };
-    } else {
-      return {
-        success: false,
-        message: "Vui lòng check-in để bắt đầu ngày làm việc.",
-      };
-    }
-  } else {
+  if (!condition.length) {
     return {
       success: false,
-      message: `Bạn đã ${!action ? "check-out" : "check-in"} hôm nay.`,
+      message: "Vui lòng kết nối internet và GPS để thực hiện thao tác.",
     };
   }
+
+  const khoangCach = KhoangCach(laObj, loObj, laDta, loDta);
+
+  for (let { type, details } of condition) {
+    switch (type) {
+      case "IP":
+        return details.includes(ip) && { success: true };
+      case "GPS":
+        return khoangCach <= details && { success: true };
+    }
+    message =
+      type === "IP"
+        ? `IP ${ip} không hợp lệ. Vui lòng kết nối lại wifi.`
+        : `Bạn đang ở ngoài nơi làm việc. Vui lòng đến ${address} để thực hiện thao tác.`;
+    return { success: false, message, type };
+  }
+};
+
+const KhoangCach = (laObj, loObj, laDta, loDta) =>
+  geolib.getDistance(
+    {
+      latitude: laObj,
+      longitude: loObj,
+    },
+    {
+      latitude: laDta,
+      longitude: loDta,
+    }
+  );
+
+const CheckLastchecksID = async (userId) => {
+  const dta = await Checks.findOne({ userId }).sort({
+    time: -1,
+  });
+  if (!dta) return { status: 3, message: "Not-data" };
+  const lastDate = moment().format("l"); // 10/21/2020
+  const curDate = moment(dta.time).format("l"); // 10/21/2020
+  return lastDate !== curDate
+    ? { status: 2, message: "Skip-check" }
+    : checkOutTime === null
+    ? { status: 1, message: "Ok-check" }
+    : { status: 0, message: "No-check" };
+};
+
+const resSend = (res, success, status, message, data) => {
+  res.status(status).send({
+    success,
+    status,
+    message,
+    data,
+  });
+};
+
+const update_UserID = async (_id) => {
+  return await Checks.findByIdAndUpdate(_id, {
+    $set: { checkOutTime: _curdate.toISOString(), action: 1 },
+  });
+};
+
+const get_Id_UserID = async (userId) => {
+  return await Checks.findOne({
+    userId,
+    action: 0,
+  }).sort({
+    time: -1,
+  });
 };
 
 exports.create = async (req, res) => {
-  const locationId = req.body.locationId;
-  const workshipId = req.body.workshipId;
+  const {
+    locationId,
+    workshipId,
+    partnerId,
+    latitude,
+    longitude,
+    action,
+    time,
+    checkOutTime,
+  } = req.body;
+  const { userId } = res.locals;
 
-  const location = await Location.findOne({ locationId });
-  const workship = await Workship.findOne({ workshipId });
+  const locationDetail = await Location.findOne({ locationId });
+  const workshipDetail = await Workship.findOne({ workshipId });
 
-  if (!workship) {
-    return res.send({
-      success: false,
-      status: 401,
-      message: `Không tìm thấy ${workshipId}`,
-    });
+  if (workshipId && !workshipDetail) {
+    message = `Không tìm thấy ${workshipId}`;
+    return resSend(res, false, 401, message);
   }
 
-  if (!workship) {
-    return res.send({
-      success: false,
-      status: 401,
-      message: `Không tìm thấy ${locationId}`,
-    });
+  if (locationId && !locationDetail) {
+    message = `Không tìm thấy ${locationId}`;
+    return resSend(res, false, 401, message);
   }
-
-  const _curdate = new Date();
 
   const obj = {
-    userId: res.locals.userId,
-    //userId: req.body.userId,
-    locationId: req.body.locationId,
-    locationDetail: location,
-    workshipId: req.body.workshipId,
-    workshipDetail: workship,
-    partnerId: req.body.partnerId,
-    latitude: req.body.latitude,
-    longitude: req.body.longitude,
-    action: req.body.action,
-    time: req.body.time || _curdate,
-    checkOutTime: req.body.checkOutTime || _curdate,
+    userId,
+    partnerId,
+    locationId,
+    workshipId,
+    latitude,
+    longitude,
+    action,
+    time: time || _curdate,
+    checkOutTime: checkOutTime || _curdate,
+    locationDetail,
+    workshipDetail,
   };
 
   const check = new Checks(obj);
 
-  if (workship.isRequireChecking === "CheckInTime") {
-    var x = await check.save();
-
-    return x
-      ? res.send({
-          success: true,
-          status: 200,
-          message: `CheckInTime thành công`,
-        })
-      : res.send({
-          success: false,
-          status: 401,
-          message: "CheckInTime thất bại",
-        });
+  if (workshipDetail.isRequireChecking === "CheckInTime") {
+    message = "CheckInTime thành công";
+    return (await check.save()) && resSend(res, true, 200, message);
   }
 
-  if (workship.isRequireChecking === "CheckInAddress") {
-    var ck = await Check_INPUT(req, obj);
-    var action = req.body.action;
+  if (workshipDetail.isRequireChecking === "CheckInAddress") {
+    const ip = req.connection.remoteAddress.substring(7);
+    const ck = await Check_INPUT(ip, obj);
 
-    console.log("ck", ck);
-
-    if (ck.success == false) {
-      res.send(ck);
-    } else {
-      if (action == 1) {
-        try {
-          var x = await Checks.findOne({
-            userId: res.locals.userId,
-            action: 0,
-          }).sort({
-            time: -1,
-          });
-          var _id = x._id;
-          var date = new Date();
-          var y = await Checks.findByIdAndUpdate(_id, {
-            $set: { checkOutTime: date.toISOString(), action: 1 },
-          });
-
-          return y
-            ? res.send({
-                success: true,
-                status: 200,
-                message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
-              })
-            : null;
-        } catch (error) {
-          res.send({
-            success: false,
-            message: "Bạn phải check In",
-          });
-        }
-      } else {
-        var x = await check.save();
-        return x
-          ? res.send({
-              success: true,
-              status: 200,
-              message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
-            })
-          : null;
+    if (ck.success == false) return res.send(ck);
+    if (action == 1) {
+      try {
+        const { _id } = await get_Id_UserID(userId);
+        message = `${obj.action == 0 ? "Check In" : "Check Out"} thành công`;
+        return (await update_UserID(_id)) && resSend(res, true, 200, message);
+      } catch (error) {
+        message = "Bạn phải check In";
+        return resSend(res, false, 201, message);
       }
+    } else {
+      message = `${obj.action == 0 ? "Check In" : "Check Out"} thành công`;
+      return (await check.save()) && resSend(true, 200, message);
     }
   }
 };
 
-exports.findAll = (req, res) => {
-  Checks.find()
-    .then((checks) => {
-      res.send(checks);
-      console.log(checks);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        success: false,
-        message: err.message || "Some error occurred while retrieving .",
-      });
-    });
-};
-
 exports.history_Checks_By_Date = async (req, res) => {
-  let fromDate = req.body.fromDate;
-  let toDate = req.body.toDate;
-  let userId = res.locals.userId;
-  let partnerId = req.body.partnerId;
-
-  var date = new Date(toDate);
+  const { fromDate, toDate, partnerId } = req.body;
+  const { userId } = res.locals;
+  const date = new Date(toDate);
   date.setDate(date.getDate() + 1);
-
-  var rs = await Checks.find({
+  const params = {
     userId,
     partnerId,
     time: {
       $gte: new Date(fromDate),
       $lte: date,
     },
-  }).sort({ time: -1 });
-
-  res.send(rs);
+  };
+  return (await Checks.find(params).sort({ time: -1 })) && res.send(rs);
 };
 
 exports.lastCheck = async (req, res) => {
-  const dta = await Checks.findOne({ userId: res.locals.userId }).sort({
-    time: -1,
-  });
+  const { userId } = res.locals;
+  const dta = await Checks.findOne({ userId }).sort({ time: -1 });
+  if (!dta) return resSend(res, false, 401, (message = "không có data !"));
+  const lastDate = moment().format("l"); //  10/21/2020
+  const curDate = moment(dta.time).format("l"); //  10/21/2020
+  message = "không có last check trong ngày !";
+  return lastDate != curDate
+    ? resSend(res, false, 401, message)
+    : res.status(200).send(dta);
+};
 
-
-  if (dta) {
-    var date = new Date(); // ngay hiện tại
-    var time = dta.time; // ngày trong db
-
-    var x = moment(time).format("YYYY-MM-DD HH:mm:ss");
-    var lastDate = moment(time).format("l"); //  10/21/2020
-    var curDate = moment(date).format("l"); //  10/21/2020
-    console.log("curDate :>> ", curDate);
-    console.log("lastDate :>> ", x);
-
-    if (lastDate != curDate) {
-      return res.send({
-        success: false,
-        message: "không có last check trong ngày !",
-      });
-    } else {
-      return res.send(dta);
-    }
-  } else {
-    return res.send({ success: false, message: "không có data !" });
-  }
+exports.findAll = async (req, res) => {
+  return (x = await Checks.find()) && res.send(x);
 };

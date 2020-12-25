@@ -3,11 +3,7 @@ const Axios = require("axios");
 
 const db = require("./../models/db");
 
-// Create and Save a new User_account
 exports.createUserAcc = async (req, res) => {
-  // var Url = "http://103.48.193.51:1241/card/v1/account/createAccount";
-  //const x = await Axios.post(Url, data);
-  // console.log(x.data);
   patient_Code = req.body.MSBN;
   console.log("object", patient_Code);
   var patientCode = await db
@@ -58,18 +54,9 @@ exports.createUserAcc = async (req, res) => {
       User: users[0],
     },
   });
-  // return Uacc.save()
-  //   .then((data) => {
-  //     res.send({ success: true, message: "Thêm mới thành công", data: data });
-  //   })
-  //   .catch((err) => {
-  //     res.status(500).send({
-  //       message: err.message || "Some error occurred while creating the Note.",
-  //     });
-  //   });
+
 };
 
-// Retrieve all User_accounts from the database.
 exports.findAll = (req, res) => {
   const title = req.query.title;
   var condition = title
@@ -88,7 +75,6 @@ exports.findAll = (req, res) => {
     });
 };
 
-// Find a single User_account with an id
 exports.findOne = async (req, res) => {
   const id = (patient_Code = req.params.id);
   console.log("object", patient_Code);
@@ -142,7 +128,6 @@ exports.findOne = async (req, res) => {
   });
 };
 
-// Update a User_account by the id in the request
 exports.update = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
@@ -167,7 +152,6 @@ exports.update = (req, res) => {
     });
 };
 
-// Delete a User_account with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
 
@@ -190,7 +174,6 @@ exports.delete = (req, res) => {
     });
 };
 
-// Delete all User_accounts from the database.
 exports.deleteAll = (req, res) => {
   User_account.deleteMany({})
     .then((data) => {
@@ -206,7 +189,6 @@ exports.deleteAll = (req, res) => {
     });
 };
 
-// Find all published User_accounts
 exports.findAllPublished = (req, res) => {
   User_account.find({ published: true })
     .then((data) => {

@@ -37,11 +37,25 @@ start_server = async () => {
   app.get("/", function (req, res) {
     res.json({ greeting: "Time_keeping wellcome" });
   });
+  app.get("/worktime", function (req, res) {
+    res.json({ greeting: "worktime wellcome" });
+  });
+  app.get("/api/account", function (req, res) {
+    res.json({ greeting: "account wellcome" });
+  });
 
   app.listen(PORT, () => {
     console.log(
       `Server is running on port http://localhost:${PORT}. \n\n -----------------Console.log()--------------------------`
     );
+    // const moment = require("moment");
+    // var x = "2020-12-26T00:12:00.000Z";
+    // var c = moment(x).format("YYYY-MM-DD HH:mm:ss");
+    // var y = "2020-12-26T05:12:00.000Z";
+    // var d = moment(y).format("YYYY-MM-DD HH:mm:ss");
+
+    // console.log("timCheckIn :>> ", c);
+    // console.log("timCheckOut :>> ", d);
   });
 };
 

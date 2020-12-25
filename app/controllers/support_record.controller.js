@@ -2,7 +2,6 @@ const Support_record = require("../models/support_record.model");
 const moment = require("moment");
 const { FindBy, FindOne } = require("./../models/handlerDB");
 
-exports.demo = (req, res) => {};
 
 DiffInMinutes = (e) => moment(new Date()).diff(moment(e), "minutes");
 
