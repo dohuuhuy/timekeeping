@@ -167,6 +167,22 @@ exports.create = async (req, res) => {
   const location = await Location.findOne({ locationId });
   const workship = await Workship.findOne({ workshipId });
 
+  if (!workship) {
+    return res.send({
+      success: false,
+      status: 401,
+      message: `Không tìm thấy ${workshipId}`,
+    });
+  }
+
+  if (!workship) {
+    return res.send({
+      success: false,
+      status: 401,
+      message: `Không tìm thấy ${locationId}`,
+    });
+  }
+
   const _curdate = new Date();
 
   const obj = {
@@ -188,12 +204,18 @@ exports.create = async (req, res) => {
 
   if (workship.isRequireChecking === "CheckInTime") {
     var x = await check.save();
+
     return x
       ? res.send({
           success: true,
+          status: 200,
           message: `CheckInTime thành công`,
         })
-      : null;
+      : res.send({
+          success: false,
+          status: 401,
+          message: "CheckInTime thất bại",
+        });
   }
 
   if (workship.isRequireChecking === "CheckInAddress") {
@@ -205,7 +227,7 @@ exports.create = async (req, res) => {
     if (ck.success == false) {
       res.send(ck);
     } else {
-      if (req.body.action == 1) {
+      if (action == 1) {
         try {
           var x = await Checks.findOne({
             userId: res.locals.userId,
@@ -213,10 +235,8 @@ exports.create = async (req, res) => {
           }).sort({
             time: -1,
           });
-          console.log("x", x);
           var _id = x._id;
           var date = new Date();
-          // console.log(date);
           var y = await Checks.findByIdAndUpdate(_id, {
             $set: { checkOutTime: date.toISOString(), action: 1 },
           });
@@ -224,6 +244,7 @@ exports.create = async (req, res) => {
           return y
             ? res.send({
                 success: true,
+                status: 200,
                 message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
               })
             : null;
@@ -238,6 +259,7 @@ exports.create = async (req, res) => {
         return x
           ? res.send({
               success: true,
+              status: 200,
               message: `${action == 0 ? "Check In" : "Check Out"} thành công`,
             })
           : null;
@@ -264,7 +286,6 @@ exports.history_Checks_By_Date = async (req, res) => {
   let fromDate = req.body.fromDate;
   let toDate = req.body.toDate;
   let userId = res.locals.userId;
-  //let userId = req.body.userId;
   let partnerId = req.body.partnerId;
 
   var date = new Date(toDate);
@@ -279,17 +300,14 @@ exports.history_Checks_By_Date = async (req, res) => {
     },
   }).sort({ time: -1 });
 
-  // console.log("rs", rs);
   res.send(rs);
 };
 
 exports.lastCheck = async (req, res) => {
-  console.log("res.locals.userId  :>> ", res.locals.userId);
   const dta = await Checks.findOne({ userId: res.locals.userId }).sort({
     time: -1,
   });
 
-  console.log("dta :>> ", dta);
 
   if (dta) {
     var date = new Date(); // ngay hiện tại
