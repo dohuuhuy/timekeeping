@@ -10,10 +10,10 @@ const Check_INPUT = async (req, obj) => {
   _ip = req.connection.remoteAddress;
   const ip = _ip.substring(7);
   const { userId, action } = obj;
-  const { status, message: message_last } = (dta = await CheckLastchecksID(
+  const { status, message: message_last } = await CheckLastchecksID(
     userId,
     action
-  ));
+  );
 
   const {
     success: success_checkCondition,
@@ -47,14 +47,9 @@ const CheckCondition = async (
   { locationId, latitude: laObj, longitude: loObj },
   ip
 ) => {
-  const {
-    condition,
-    latitude: laDta,
-    longitude: loDta,
-    address,
-  } = (dta = await Location.findOne({
-    locationId: locationId,
-  }));
+  const dta = await Location.findOne({
+    locationId,
+  });
 
   if (!dta) {
     return {
@@ -62,6 +57,8 @@ const CheckCondition = async (
       message: `Cơ sở ${address} chưa được cập nhật hoặc đã.\n Vui lòng chọn cơ sở khác để thực hiện thao tác.`,
     };
   }
+  const { condition, latitude: laDta, longitude: loDta, address } = dta;
+
   if (!condition.length) {
     return {
       success: false,
@@ -105,7 +102,7 @@ const CheckLastchecksID = async (userId, action) => {
   }).sort({
     time: -1,
   }));
-  const lastDate = moment(new Date()).format("l"); //  10/21/2020
+  const lastDate = moment().format("l"); //  10/21/2020
   const curDate = moment(time).format("l"); //  10/21/2020
 
   if (!dta) return { status: 3, message: "Not-data" };
@@ -193,9 +190,8 @@ exports.create = async (req, res) => {
             time: -1,
           });
           const _id = x._id;
-          const date = new Date();
           const y = await Checks.findByIdAndUpdate(_id, {
-            $set: { checkOutTime: date.toISOString(), action: 1 },
+            $set: { checkOutTime: _curdate.toISOString(), action: 1 },
           });
 
           return y
@@ -247,17 +243,23 @@ exports.history_Checks_By_Date = async (req, res) => {
 
 exports.lastCheck = async (req, res) => {
   const { userId } = res.locals;
-  const dta = await Checks.findOne({ userId }).sort({ time: -1 });
-  if (!dta) return resSend(res, false, 401, (message = "không có data !"));
+  const dta = await Checks.findOne({ userId }).sort({
+    time: -1,
+  });
+  message = "không có data !";
+  if (!dta) return resSend(res, false, 401, message);
+
+  const { time } = dta;
   const lastDate = moment().format("l"); //  10/21/2020
-  const curDate = moment(dta.time).format("l"); //  10/21/2020
-  let message = "không có last check trong ngày !";
+  const curDate = moment(time).format("l");
+  message = "không có last check trong ngày !";
   return lastDate != curDate
     ? resSend(res, false, 401, message)
     : res.status(200).send(dta);
 };
+
 const resSend = (res, success, status, message, data) => {
-  res.status(status).send({
+  return res.status(status).send({
     success,
     status,
     message,
