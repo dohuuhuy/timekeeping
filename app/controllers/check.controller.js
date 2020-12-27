@@ -72,20 +72,20 @@ const CheckCondition = async (
   for (var { type, details, details: scope } of condition) {
     switch (type) {
       case "IP":
-        return details.includes(ip) && { success: true };
+        if (details.includes(ip)) return { success: true };
       case "GPS":
         const khoangCach = KhoangCach(laObj, loObj, laDta, loDta);
-        return khoangCach <= scope && { success: true };
+        if (khoangCach <= scope) return { success: true };
       default:
         break;
     }
 
-    var x =
-      value.type == "IP"
+    var message =
+      type == "IP"
         ? `IP ${ip} không hợp lệ. Vui lòng kết nối lại wifi.`
-        : `Bạn đang ở ngoài nơi làm việc. Vui lòng đến ${dta.address} để thực hiện thao tác.`;
+        : `Bạn đang ở ngoài nơi làm việc. Vui lòng đến ${address} để thực hiện thao tác.`;
 
-    return { success: false, message: x, type: value.type };
+    return { success: false, message, type };
   }
 };
 const KhoangCach = (laObj, loObj, laDta, loDta) =>
