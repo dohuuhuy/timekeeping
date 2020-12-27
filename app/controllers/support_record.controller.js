@@ -2,7 +2,6 @@ const Support_record = require("../models/support_record.model");
 const moment = require("moment");
 const { FindBy, FindOne } = require("./../models/handlerDB");
 
-
 DiffInMinutes = (e) => moment(new Date()).diff(moment(e), "minutes");
 
 check_for_existence = async (obj) => {

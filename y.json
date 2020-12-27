@@ -1,34 +1,3 @@
-[
-  {
-    "optionTime": [
-      {
-        "sessionName": "Buổi sáng",
-        "time": {
-          "from": "7:00",
-          "to": "11:00"
-        }
-      },
-      {
-        "sessionName": "Buổi chiều",
-        "time": {
-          "from": "13:30",
-          "to": "17:30"
-        }
-      },
-      {
-        "sessionName": "Buổi tối",
-        "time": {
-          "from": "17:30",
-          "to": "21:30"
-        }
-      }
-    ]
-  },
-  {
-    "action": 0,
-    "locationId": "vpPKH-GPS-wifi",
-    "latitude": 10.8410934,
-    "longitude": 106.6340245,
-    "workshipId": "XB"
-  }
-]
+{
+    "dsv": "svdv"
+}

@@ -4,9 +4,8 @@ const Location = require("../models/location.model.js");
 
 const moment = require("moment");
 const geolib = require("geolib");
-const { update } = require("../models/checktime.model.js");
 
-Check_INPUT = async (req, data) => {
+const Check_INPUT = async (req, data) => {
   _ip = req.connection.remoteAddress;
   var ip = _ip.substring(7);
   var userId = data.userId;
@@ -16,7 +15,7 @@ Check_INPUT = async (req, data) => {
   var checklastchecks = await CheckLastchecksID(userId, action);
   var checkCondition = await CheckCondition(data.locationId, data, ip);
 
-  if (countUserId < 1) {
+  if (countUserId === 1) {
     if (checkCondition.success === false) {
       return checkCondition;
     } else {
@@ -52,7 +51,7 @@ Check_INPUT = async (req, data) => {
   }
 };
 
-CheckCondition = async (locationId, data, ip) => {
+const CheckCondition = async (locationId, data, ip) => {
   var dta = await Location.findOne({ locationId: locationId });
   console.log("dta :>> ", dta);
 
@@ -93,7 +92,7 @@ CheckCondition = async (locationId, data, ip) => {
           );
 
           var condition = value.details;
-          if (khoangCach <= condition) {
+          if (condition <= condition) {
             return { success: true };
           }
 
@@ -112,7 +111,7 @@ CheckCondition = async (locationId, data, ip) => {
   }
 };
 
-CheckLastchecksID = async (userId, action) => {
+const CheckLastchecksID = async (userId, action) => {
   const dta = await Checks.findOne({ userId: userId }).sort({
     time: -1,
   });
@@ -134,7 +133,7 @@ CheckLastchecksID = async (userId, action) => {
   }
 };
 
-Check_In_Time = async (req, data) => {
+const Check_In_Time = async (req, data) => {
   var userId = data.userId;
   var action = data.action;
 
