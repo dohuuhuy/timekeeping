@@ -92,7 +92,7 @@ const CheckCondition = async (locationId, data, ip) => {
           );
 
           var condition = value.details;
-          if (condition <= condition) {
+          if (khoangCach <= condition) {
             return { success: true };
           }
 
@@ -133,35 +133,8 @@ const CheckLastchecksID = async (userId, action) => {
   }
 };
 
-const Check_In_Time = async (req, data) => {
-  var userId = data.userId;
-  var action = data.action;
-
-  var checklastchecks = await CheckLastchecksID(userId, action);
-
-  if (checklastchecks.status == 1) {
-    return { success: true, message: "Ok-check" };
-  }
-  if (checklastchecks.status == 2) {
-    if (action == 0) {
-      return { success: true, message: "Ok-check" };
-    } else {
-      return {
-        success: false,
-        message: "Vui lòng check-in để bắt đầu ngày làm việc.",
-      };
-    }
-  } else {
-    return {
-      success: false,
-      message: `Bạn đã ${!action ? "check-out" : "check-in"} hôm nay.`,
-    };
-  }
-};
-
 exports.create = async (req, res) => {
-  const locationId = req.body.locationId;
-  const workshipId = req.body.workshipId;
+  const { locationId, workshipId } = req.body;
 
   const location = await Location.findOne({ locationId });
   const workship = await Workship.findOne({ workshipId });
@@ -170,7 +143,7 @@ exports.create = async (req, res) => {
     return res.send({
       success: false,
       status: 401,
-      message: `Không tìm thấy ${workshipId}`,
+      message: `Không tìm thấy workshipId`,
     });
   }
 
@@ -178,7 +151,7 @@ exports.create = async (req, res) => {
     return res.send({
       success: false,
       status: 401,
-      message: `Không tìm thấy ${locationId}`,
+      message: `Không tìm thấy locationId`,
     });
   }
 
