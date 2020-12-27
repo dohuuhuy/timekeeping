@@ -137,14 +137,6 @@ exports.create = async (req, res) => {
     });
   }
 
-  if (!locationDetail) {
-    return res.send({
-      success: false,
-      status: 401,
-      message: `Không tìm thấy locationId`,
-    });
-  }
-
   const obj = {
     userId,
     partnerId,
