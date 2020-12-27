@@ -8,7 +8,7 @@ const _curdate = new Date();
 
 const Check_INPUT = async (req, obj) => {
   _ip = req.connection.remoteAddress;
-  var ip = _ip.substring(7);
+  const ip = _ip.substring(7);
   const { userId, action } = obj;
   const { status, message: message_last } = (dta = await CheckLastchecksID(
     userId,
@@ -47,7 +47,7 @@ const CheckCondition = async (
   { locationId, latitude: laObj, longitude: loObj },
   ip
 ) => {
-  var {
+  const {
     condition,
     latitude: laDta,
     longitude: loDta,
@@ -69,19 +69,19 @@ const CheckCondition = async (
     }; // khong co conditions
   }
 
-  for (var { type, details, details: scope } of condition) {
+  for (let { type, details, details: scope } of condition) {
     switch (type) {
       case "IP":
         if (details.includes(ip)) return { success: true };
       case "GPS":
         const khoangCach = KhoangCach(laObj, loObj, laDta, loDta);
-        if (khoangCach <= scope) return { success: true };
+        if (scope <= scope) return { success: true };
       default:
         break;
     }
 
-    var message =
-      type == "IP"
+    const message =
+      type === "IP"
         ? `IP ${ip} không hợp lệ. Vui lòng kết nối lại wifi.`
         : `Bạn đang ở ngoài nơi làm việc. Vui lòng đến ${address} để thực hiện thao tác.`;
 
@@ -105,8 +105,8 @@ const CheckLastchecksID = async (userId, action) => {
   }).sort({
     time: -1,
   }));
-  var lastDate = moment(new Date()).format("l"); //  10/21/2020
-  var curDate = moment(time).format("l"); //  10/21/2020
+  const lastDate = moment(new Date()).format("l"); //  10/21/2020
+  const curDate = moment(time).format("l"); //  10/21/2020
 
   if (!dta) return { status: 3, message: "Not-data" };
   if (lastDate != curDate) return { status: 2, message: "Skip-check" };
@@ -164,7 +164,7 @@ exports.create = async (req, res) => {
   const check = new Checks(obj);
 
   if (workshipDetail.isRequireChecking === "CheckInTime") {
-    var x = await check.save();
+    const x = await check.save();
 
     return x
       ? res.send({
@@ -180,21 +180,21 @@ exports.create = async (req, res) => {
   }
 
   if (workshipDetail.isRequireChecking === "CheckInAddress") {
-    var ck = await Check_INPUT(req, obj);
+    const ck = await Check_INPUT(req, obj);
     if (ck.success == false) {
       res.send(ck);
     } else {
       if (action == 1) {
         try {
-          var x = await Checks.findOne({
+          const x = await Checks.findOne({
             userId: res.locals.userId,
             action: 0,
           }).sort({
             time: -1,
           });
-          var _id = x._id;
-          var date = new Date();
-          var y = await Checks.findByIdAndUpdate(_id, {
+          const _id = x._id;
+          const date = new Date();
+          const y = await Checks.findByIdAndUpdate(_id, {
             $set: { checkOutTime: date.toISOString(), action: 1 },
           });
 
@@ -212,7 +212,7 @@ exports.create = async (req, res) => {
           });
         }
       } else {
-        var x = await check.save();
+        const x = await check.save();
         return x
           ? res.send({
               success: true,
@@ -255,4 +255,12 @@ exports.lastCheck = async (req, res) => {
   return lastDate != curDate
     ? resSend(res, false, 401, message)
     : res.status(200).send(dta);
+};
+const resSend = (res, success, status, message, data) => {
+  res.status(status).send({
+    success,
+    status,
+    message,
+    data,
+  });
 };
