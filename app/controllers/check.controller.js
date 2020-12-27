@@ -75,7 +75,7 @@ const CheckCondition = async (
         if (details.includes(ip)) return { success: true };
       case "GPS":
         const khoangCach = KhoangCach(laObj, loObj, laDta, loDta);
-        if (scope <= scope) return { success: true };
+        if (khoangCach <= scope) return { success: true };
       default:
         break;
     }
