@@ -10,7 +10,7 @@ const CheckSchema = mongoose.Schema({
   latitude: String,
   longitude: String,
   action: {
-    type: String,
+    type: Number,
     default: 0,
   }, // 0 checkin, 1 checkout
   wifiDetail: Object,

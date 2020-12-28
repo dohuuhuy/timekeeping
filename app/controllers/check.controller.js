@@ -30,7 +30,7 @@ const Check_INPUT = async (req, obj) => {
         ? checkCondition
         : { success: true, message: message_last };
     case 2: // lastcheck require checkin new day
-      return action == 0
+      return action === 0
         ? success_checkCondition === false // check conditions {location, ip }
           ? checkCondition
           : { success: true, message: message_last }
@@ -120,11 +120,11 @@ exports.create = async (req, res) => {
     partnerId,
     latitude,
     longitude,
-    action,
     time,
     checkOutTime,
   } = req.body;
   const { userId } = res.locals;
+  const action = parseInt(req.body.action);
 
   const locationDetail = await Location.findOne({ locationId });
   const workshipDetail = await Workship.findOne({ workshipId });
@@ -173,7 +173,7 @@ exports.create = async (req, res) => {
     if (ck.success == false) {
       res.send(ck);
     } else {
-      if (action == 1) {
+      if (action === 1) {
         try {
           const x = await Checks.findOne({
             userId: res.locals.userId,
@@ -183,7 +183,7 @@ exports.create = async (req, res) => {
           });
           const _id = x._id;
           const y = await Checks.findByIdAndUpdate(_id, {
-            $set: { checkOutTime: _curdate.toISOString(), action: 1 },
+            $set: { checkOutTime: _curdate.toISOString(), action: Number(1) },
           });
 
           return y
