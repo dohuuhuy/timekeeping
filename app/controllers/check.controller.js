@@ -125,7 +125,6 @@ exports.create = async (req, res) => {
     checkOutTime,
   } = req.body;
   const { userId } = res.locals;
-  const action = req.body.action ? parseInt(req.body.action) : null;
 
   const locationDetail = await Location.findOne({ locationId });
   const workshipDetail = await Workship.findOne({ workshipId });
@@ -137,6 +136,8 @@ exports.create = async (req, res) => {
       message: `Không tìm thấy workshipId`,
     });
   }
+
+  const action = req.body.action ? parseInt(req.body.action) : 0;
 
   const obj = {
     userId,
