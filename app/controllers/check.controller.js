@@ -101,8 +101,7 @@ const CheckLastchecksID = async (userId, action) => {
   }).sort({
     time: -1,
   });
-  console.log(userId, action);
-  console.log("dta :>> ", dta);
+
   if (!dta) return { status: 3, message: "Not-data" };
   const { time, action: action_last } = dta;
   const lastDate = moment().format("l"); //  10/21/2020
@@ -126,7 +125,7 @@ exports.create = async (req, res) => {
     checkOutTime,
   } = req.body;
   const { userId } = res.locals;
-  const action = parseInt(req.body.action);
+  const action = req.body.action ? parseInt(req.body.action) : null;
 
   const locationDetail = await Location.findOne({ locationId });
   const workshipDetail = await Workship.findOne({ workshipId });
@@ -154,6 +153,7 @@ exports.create = async (req, res) => {
   };
   const check = new Checks(obj);
 
+  console.log("obj :>> ", obj);
   if (workshipDetail.isRequireChecking === "CheckInTime") {
     const x = await check.save();
 
