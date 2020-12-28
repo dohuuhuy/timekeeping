@@ -230,7 +230,7 @@ exports.history_Checks_By_Date = async (req, res) => {
       $lte: date,
     },
   };
-  return (await Checks.find(params).sort({ time: -1 })) && res.send(rs);
+  return (rs = await Checks.find(params).sort({ time: -1 })) && res.send(rs);
 };
 
 exports.lastCheck = async (req, res) => {
