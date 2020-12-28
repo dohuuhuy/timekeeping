@@ -4,7 +4,6 @@ const Location = require("../models/location.model.js");
 
 const moment = require("moment");
 const geolib = require("geolib");
-const _curdate = new Date();
 
 const Check_INPUT = async (req, obj) => {
   _ip = req.connection.remoteAddress;
@@ -97,15 +96,18 @@ const KhoangCach = (laObj, loObj, laDta, loDta) =>
     }
   );
 const CheckLastchecksID = async (userId, action) => {
-  const { time, action: action_last } = (dta = await Checks.findOne({
+  const dta = await Checks.findOne({
     userId,
   }).sort({
     time: -1,
-  }));
+  });
+  console.log(userId, action);
+  console.log("dta :>> ", dta);
+  if (!dta) return { status: 3, message: "Not-data" };
+  const { time, action: action_last } = dta;
   const lastDate = moment().format("l"); //  10/21/2020
   const curDate = moment(time).format("l"); //  10/21/2020
 
-  if (!dta) return { status: 3, message: "Not-data" };
   if (lastDate != curDate) return { status: 2, message: "Skip-check" };
 
   return action != action_last
@@ -169,6 +171,7 @@ exports.create = async (req, res) => {
   }
 
   if (workshipDetail.isRequireChecking === "CheckInAddress") {
+    const _curdate = new Date();
     const ck = await Check_INPUT(req, obj);
     if (ck.success == false) {
       res.send(ck);
