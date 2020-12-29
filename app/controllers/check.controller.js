@@ -114,7 +114,7 @@ const CheckLastchecksID = async (userId, action) => {
     : { status: 0, message: "No-check" };
 };
 
-exports.create = async (req, res) => {
+exports.create = async (req, res) => { // checkin chấm công
   const {
     locationId,
     workshipId,
@@ -154,7 +154,6 @@ exports.create = async (req, res) => {
   };
   const check = new Checks(obj);
 
-  console.log("obj :>> ", obj);
   if (workshipDetail.isRequireChecking === "CheckInTime") {
     const x = await check.save();
 
