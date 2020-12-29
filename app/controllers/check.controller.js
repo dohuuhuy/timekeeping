@@ -39,6 +39,8 @@ const Check_INPUT = async (req, obj) => {
           };
     case 3: // lastcheck not data
       return { success: false, message: message_last };
+    case 4: // check nghĩ không được chấm công trong thời gian nghỉ
+      return { success: false, message: message_last };
   }
 };
 
@@ -75,7 +77,6 @@ const CheckCondition = async (
       default:
         break;
     }
-
     const message =
       type === "IP"
         ? `IP ${ip} không hợp lệ. Vui lòng kết nối lại wifi.`
@@ -84,6 +85,7 @@ const CheckCondition = async (
     return { success: false, message, type };
   }
 };
+
 const KhoangCach = (laObj, loObj, laDta, loDta) =>
   geolib.getDistance(
     {
@@ -95,6 +97,7 @@ const KhoangCach = (laObj, loObj, laDta, loDta) =>
       longitude: loDta,
     }
   );
+
 const CheckLastchecksID = async (userId, action) => {
   const dta = await Checks.findOne({
     userId,
@@ -103,18 +106,32 @@ const CheckLastchecksID = async (userId, action) => {
   });
 
   if (!dta) return { status: 3, message: "Not-data" };
-  const { time, action: action_last } = dta;
-  const lastDate = moment().format("l"); //  10/21/2020
-  const curDate = moment(time).format("l"); //  10/21/2020
 
-  if (lastDate != curDate) return { status: 2, message: "Skip-check" };
+  const { checkOutTime, time, action: action_last, workshipDetail } = dta;
+  const curDate = moment().format("l"); //  10/21/2020
+  const checkInTime = moment(time).format("l"); //  10/21/2020
 
-  return action != action_last
-    ? { status: 1, message: "Ok-check" }
-    : { status: 0, message: "No-check" };
+  switch (workshipDetail.isRequireChecking) {
+    case "CheckInTime":
+      if (new Date() < checkOutTime) {
+        return { status: 4, message: "Đang trong thời gian nghỉ" };
+      } else return { status: 1, message: "Ok-check" };
+    case "CheckInAddress":
+
+      
+      if (curDate != checkInTime) return { status: 2, message: "Skip-check" };
+      else
+        return action != action_last
+          ? { status: 1, message: "Ok-check" }
+          : { status: 0, message: "No-check" };
+
+    default:
+      break;
+  }
 };
 
-exports.create = async (req, res) => { // checkin chấm công
+exports.create = async (req, res) => {
+  // checkin chấm công
   const {
     locationId,
     workshipId,
