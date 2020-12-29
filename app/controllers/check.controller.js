@@ -106,12 +106,6 @@ const CheckLastchecksID = async (userId, action) => {
   });
 
   if (!dta) return { status: 3, message: "Not-data" };
-
-  const { checkOutTime, time, action: action_last, workshipDetail } = dta;
-  const curDate = moment().format("l"); //  10/21/2020
-  const checkInTime = moment(time).format("l"); //  10/21/2020
-
-  if (!dta) return { status: 3, message: "Not-data" };
   const { time, action: action_last } = dta;
   const lastDate = moment().format("l"); //  10/21/2020
   const curDate = moment(time).format("l"); //  10/21/2020
