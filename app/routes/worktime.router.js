@@ -16,7 +16,7 @@ router.post("/workships", workships.create);
 
 router.get("/workships", workships.findAll);
 
-router.get("/workships/:workshipId", workships.findOne);
+router.get("/workships/:workshipId", workships.find_Workship);
 
 router.put("/workships/:workshipId", workships.update);
 
