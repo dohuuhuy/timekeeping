@@ -17,6 +17,15 @@ const Check_INPUT = async (req, obj) => {
   const {
     success: success_checkCondition,
   } = (checkCondition = await CheckCondition(obj, ip));
+  const countUserId = await Checks.countDocuments({ userId });
+
+  if (countUserId < 1) {
+    if (success_checkCondition === false) {
+      return checkCondition;
+    } else {
+      return { success: true, message: "Ok-check" };
+    }
+  }
 
   switch (status) {
     case 0: // lastcheck check action
