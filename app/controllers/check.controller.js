@@ -195,7 +195,9 @@ exports.create = async (req, res) => {
     const checkin = moment(obj.time);
     const checkout = moment(obj.checkOutTime);
 
-    if (checkout > checkin) {
+    // console.log("checkout > checkin :>> ", checkout < checkin);
+
+    if (checkout < checkin) {
       return res.send({
         success: false,
         status: 400,
