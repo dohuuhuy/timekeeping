@@ -31,7 +31,7 @@ const Check_INPUT = async (req, obj) => {
     case 0: // lastcheck check action
       return {
         success: false,
-        message: `Bạn đã ${action ? "check-out" : "check-in"} ròi.`,
+        message: `Bạn đã ${action ? "check-out" : "check-in"} rồi.`,
       };
     case 1: // lastcheck pass
       return success_checkCondition === false
@@ -115,6 +115,7 @@ const CheckLastchecksID = async (userId, action) => {
   });
 
   if (!dta) return { status: 3, message: "Not-data" };
+
   const { time, action: action_last } = dta;
   const lastDate = moment().format("l"); //  10/21/2020
   const curDate = moment(time).format("l"); //  10/21/2020
@@ -182,11 +183,25 @@ exports.create = async (req, res) => {
     locationDetail,
     workshipDetail,
   };
+
   const check = new Checks(obj);
 
+  // là thời gian
   if (workshipDetail.isRequireChecking === "CheckInTime") {
     const x = await check.save();
 
+    // kiểm tra thơì gian checkin checkout
+
+    const checkin = moment(obj.time);
+    const checkout = moment(obj.checkOutTime);
+
+    if (checkout > checkin) {
+      return res.send({
+        success: false,
+        status: 400,
+        message: `Thời gian ra không được lớn hơn thời gian vào`,
+      });
+    }
     return x
       ? res.send({
           success: true,
@@ -199,7 +214,7 @@ exports.create = async (req, res) => {
           message: "CheckInTime thất bại",
         });
   }
-
+  // là địa điểm
   if (workshipDetail.isRequireChecking === "CheckInAddress") {
     const _curdate = new Date();
     const ck = await Check_INPUT(req, obj);
