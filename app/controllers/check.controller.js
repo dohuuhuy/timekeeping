@@ -276,6 +276,7 @@ const list_Hist_in_address_by_date = async (userId, partnerId) => {
   const params = {
     userId,
     partnerId,
+    "workshipDetail.isRequireChecking": "CheckInAddress",
     time: {
       $gte: start,
       $lte: end,
@@ -314,7 +315,6 @@ exports.history_Checks_By_Date = async (req, res) => {
 
   // check lích sử của user x trong ngày
   const list_address = await list_Hist_in_address_by_date(userId, partnerId);
-
   // check list sử của user x có time check in time hay không ?
   const list_time = await list_Hist_in_time(userId, partnerId);
 
