@@ -4,6 +4,7 @@ const Location = require("../models/location.model.js");
 
 const moment = require("moment");
 const geolib = require("geolib");
+const { months } = require("moment");
 
 const Check_INPUT = async (req, obj) => {
   _ip = req.connection.remoteAddress;
@@ -267,18 +268,58 @@ exports.findAll = async (req, res) => {
   return (x = await Checks.find()) && res.send(x);
 };
 
-exports.history_Checks_By_Date = async (req, res) => {
-  const { fromDate, toDate, partnerId } = req.body;
-  const { userId } = res.locals;
+const list_Hist_in_address_by_date = async (userId, partnerId) => {
+  now = moment();
+  const start = now.startOf("day").toString();
+  const end = now.endOf("day").toString();
 
   const params = {
     userId,
     partnerId,
-    time: { $gte: fromDate },
-    checkOutTime: { $lte: toDate },
+    time: {
+      $gte: start,
+      $lte: end,
+    },
   };
-  const rs = await Checks.find(params).sort({ time: -1 });
-  return res.send(rs);
+  try {
+    const rs = await Checks.find(params).sort({ time: -1 });
+    return rs;
+  } catch (error) {
+    return [];
+  }
+};
+
+const list_Hist_in_time = async (userId, partnerId) => {
+  now = moment();
+  const start = now.startOf("day").toString();
+  const params = {
+    userId,
+    partnerId,
+    "workshipDetail.isRequireChecking": "CheckInTime",
+    time: {
+      $gte: start,
+    },
+  };
+  try {
+    const rs = await Checks.find(params).sort({ time: -1 });
+    return rs;
+  } catch (error) {
+    return [];
+  }
+};
+
+exports.history_Checks_By_Date = async (req, res) => {
+  const { userId } = res.locals;
+  const { partnerId } = req.body;
+
+  // check lích sử của user x trong ngày
+  const list_address = await list_Hist_in_address_by_date(userId, partnerId);
+
+  // check list sử của user x có time check in time hay không ?
+  const list_time = await list_Hist_in_time(userId, partnerId);
+
+  const list_history = list_address.concat(list_time);
+  return res.status(200).send(list_history);
 };
 
 exports.lastCheck = async (req, res) => {
