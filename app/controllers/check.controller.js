@@ -270,17 +270,15 @@ exports.findAll = async (req, res) => {
 exports.history_Checks_By_Date = async (req, res) => {
   const { fromDate, toDate, partnerId } = req.body;
   const { userId } = res.locals;
-  const date = new Date(toDate);
-  date.setDate(date.getDate() + 1);
+
   const params = {
     userId,
     partnerId,
-    time: {
-      $gte: new Date(fromDate),
-      $lte: date,
-    },
+    time: { $gte: fromDate },
+    checkOutTime: { $lte: toDate },
   };
-  return (rs = await Checks.find(params).sort({ time: -1 })) && res.send(rs);
+  const rs = await Checks.find(params).sort({ time: -1 });
+  return res.send(rs);
 };
 
 exports.lastCheck = async (req, res) => {
