@@ -111,6 +111,7 @@ const KhoangCach = (laObj, loObj, laDta, loDta) =>
 const CheckLastchecksID = async (userId, action) => {
   const dta = await Checks.findOne({
     userId,
+    "workshipDetail.isRequireChecking": "CheckInAddress",
   }).sort({
     time: -1,
   });
@@ -126,23 +127,6 @@ const CheckLastchecksID = async (userId, action) => {
   return action != action_last
     ? { status: 1, message: "Ok-check" }
     : { status: 0, message: "No-check" };
-
-  // switch (workshipDetail.isRequireChecking) {
-  //   case "CheckInTime":
-  //     if (new Date() < checkOutTime) {
-  //       return { status: 4, message: "Đang trong thời gian nghỉ" };
-  //     } else return { status: 1, message: "Ok-check" };
-  //   case "CheckInAddress":
-
-  //     if (curDate != checkInTime) return { status: 2, message: "Skip-check" };
-  //     else
-  //       return action != action_last
-  //         ? { status: 1, message: "Ok-check" }
-  //         : { status: 0, message: "No-check" };
-
-  //   default:
-  //     break;
-  // }
 };
 
 exports.create = async (req, res) => {
@@ -291,7 +275,7 @@ const list_Hist_in_address_by_date = async (userId, partnerId) => {
 };
 
 const list_Hist_in_time = async (userId, partnerId) => {
-  now = moment();
+  const now = moment();
   const start = now.startOf("day").toString();
   const params = {
     userId,
